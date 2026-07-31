@@ -1,0 +1,7 @@
+# These artifacts include raw-byte integrity checks and must not be checkout-converted.
+docs/verification/llm-wikis-v0.1.0-checklist-baseline.json text eol=lf
+docs/verification/llm-wikis-v0.1.0-checklist.md text eol=lf
+docs/verification/llm-wikis-execution.md text eol=lf
+*.sh text eol=lf
+*.ps1 text eol=lf
+.github/workflows/*.yml text eol=lf

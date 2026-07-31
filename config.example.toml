@@ -1,0 +1,6 @@
+config_version = 1
+claude_executable = "claude"
+
+[wikis.agents]
+path = "E:/replace-me/agents"
+entrypoint = "/wiki-query"

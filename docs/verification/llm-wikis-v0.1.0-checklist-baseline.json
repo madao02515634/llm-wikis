@@ -1,0 +1,1846 @@
+{
+  "row_count": 230,
+  "rows": [
+    {
+      "command_or_inspection": "Closed procedure: (1) read the checklist Author/Authored/Author role lines; (2) read all baseline approval timestamps in execution.md; (3) read the earliest production-file commit or SHA manifest timestamp; (4) read the Task 17 verifier identity; (5) compare identities and chronology.",
+      "expected_result": "Author is exactly `/root/task01_checklist_author`; latest approved checklist baseline predates the earliest production change; Task 17 verifier is neither this author nor any recorded implementer.",
+      "id": "OFF-001",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "The acceptance checklist was authored before production code by an independent session with no implementation role, and final verification is reserved for a different independent verifier."
+    },
+    {
+      "command_or_inspection": "Closed procedure: (1) run `Get-FileHash -Algorithm SHA256 docs/verification/llm-wikis-v0.1.0-checklist-baseline.json`; (2) parse baseline `row_count` and `schema_version`; (3) parse the machine-readable active-baseline block in execution.md; (4) compare all three values; (5) verify every superseded hash/count and approval remains chronological.",
+      "expected_result": "Raw hash, row count, and schema exactly equal the active-baseline block; all older baselines remain recorded with explicit approvals for each replacement; any mismatch or unapproved replacement fails.",
+      "id": "OFF-002",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "The frozen baseline remains byte-for-byte unchanged unless the user approved a replacement."
+    },
+    {
+      "command_or_inspection": "Run `cargo metadata --no-deps --format-version 1`; inspect Cargo targets and runtime code for Python invocation or embedding.",
+      "expected_result": "Metadata shows one `llm-wikis` 0.1.0 native binary, and production execution has no Python dependency.",
+      "id": "OFF-003",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "The product is one Rust package named `llm-wikis` at version 0.1.0 and needs no Python runtime."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test cli_contract off_004 -- --exact`. Fixture/assertion scope: Run `cargo run -- --help`; run each subcommand with `--help`; inspect the parsed command model.",
+      "expected_result": "Test exits 0 after asserting the only commands are config init, list, doctor, and query plus top-level version; global options are only config/json/help/version; no raw provider-argument option exists.",
+      "id": "OFF-004",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "The public CLI exposes only version, config init, list, doctor, and single-wiki query with the specified global and command options."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test cli_contract off_005 -- --exact`. Fixture/assertion scope: Run `rg -n -e \"orchestration\" -e \"mcp server\" -e \"search_wiki\" -e \"read_wiki_page\" -e \"self-update\" -e \"uninstall\" -e \"homebrew\" -e \"winget\" -e \"scoop\" src Cargo.toml config.example.toml install.ps1 install.sh docs/llm-wikis.md`; inspect any matches.",
+      "expected_result": "Test exits 0 only when no callable source/config/Cargo/installer implementation exists for any listed capability and every docs match is explicitly marked out of scope or future work.",
+      "id": "OFF-005",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "MCP, orchestration, multi-wiki fan-out, direct retrieval APIs, answer saving, operation logging, query-time index regeneration, wizard, self-update, uninstaller, and package-manager distribution remain out of scope."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test cli_contract off_006 -- --exact`. Fixture/assertion scope: Run `cargo run -- --version`.",
+      "expected_result": "Stdout is exactly `llm-wikis 0.1.0` followed by one line ending and exit is 0.",
+      "id": "OFF-006",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "`--version` prints the exact product name and Cargo package version."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test cli_contract off_007 -- --exact`. Fixture/assertion scope: Run the compiled CLI with `--config` set to a nonexistent nested temporary absolute path and `config init`; then run JSON list against it and inspect the TOML.",
+      "expected_result": "Parent and file are created without prompts; config parses; list returns an empty array; defaults/profile/commented operator-owned path example are present and do not imply repository-relative installation.",
+      "id": "OFF-007",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "`config init` creates missing parent directories and a valid non-interactive starter registry with runtime/provider defaults, one reusable `wiki-query/v1` profile, zero wikis, and a safe commented absolute-path example."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test cli_contract off_008 -- --exact`. Fixture/assertion scope: Create and hash a test-owned canonical absolute sentinel path, invoke JSON config init against that exact path, then hash it again.",
+      "expected_result": "Exit is 2 with `CONFIG_EXISTS`, `created` is false, and file bytes are unchanged.",
+      "id": "OFF-008",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "`config init` never overwrites or merges an existing file."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test cli_contract off_009 -- --exact`. Fixture/assertion scope: Execute successful and existing-file `--json config init` cases and parse stdout as a single JSON value.",
+      "expected_result": "Success contains exactly schema version 1.0, ok true, operation `config_init`, absolute path, and created true; failure has operation `config_init`, created false, and the normalized error.",
+      "id": "OFF-009",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "JSON config initialization uses the exact success fields and the same operation with a public error object on failure."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test cli_contract off_010 -- --exact`. Fixture/assertion scope: Run CLI contract tests and direct JSON invocations for missing, repeated, and `all` wiki selectors.",
+      "expected_result": "Each invalid form exits 2 with `ARGUMENT_INVALID`; no provider starts.",
+      "id": "OFF-010",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Query accepts exactly one allowlisted wiki ID and rejects a missing ID, repeated `--wiki`, and literal `all`."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test cli_contract off_011 -- --exact`. Fixture/assertion scope: Run CLI contract tests with positional, Traditional Chinese, multiline, leading-dash, and stdin-only questions.",
+      "expected_result": "Each form reaches the service as the exact original UTF-8 bytes without truncation or reinterpretation.",
+      "id": "OFF-011",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Query accepts either a positional question after `--` or the complete UTF-8 question from stdin when the positional form is absent."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test cli_contract off_012 -- --exact`. Fixture/assertion scope: Pipe non-empty stdin while also supplying a positional question; separately invoke with no positional content and empty stdin.",
+      "expected_result": "Each invocation exits 2 with `ARGUMENT_INVALID` before provider startup.",
+      "id": "OFF-012",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Query rejects simultaneous positional and stdin questions and rejects missing or empty question input rather than merging ambiguity."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test cli_contract off_013 -- --exact`. Fixture/assertion scope: Run table-driven CLI tests for enabled default, absent default, and default not enabled by the wiki.",
+      "expected_result": "Enabled default is selected; the other cases fail deterministically without starting a provider.",
+      "id": "OFF-013",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Omitting `--agent` is allowed only when the global default provider is enabled for the selected wiki."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test cli_contract off_014 -- --exact`. Fixture/assertion scope: Run a fixture-backed successful query without `--json` whose result contains all three categories.",
+      "expected_result": "Stdout ordering is answer, gaps, warnings; diagnostics are not mixed into stdout.",
+      "id": "OFF-014",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Human query output prints answer, then gaps, then warnings."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test cli_contract off_015 -- --exact`. Fixture/assertion scope: Run representative success, CLI parse failure, and provider failure with `--json`; parse stdout once and assert EOF; capture stderr separately.",
+      "expected_result": "Each stdout contains one JSON value and nothing else; stderr contains only bounded diagnostics.",
+      "id": "OFF-015",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "JSON mode emits exactly one normalized JSON document on stdout for successes, parse errors, and runtime failures; diagnostics go to stderr."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test list`; inspect its fake process runner call count.",
+      "expected_result": "Zero-wiki config returns a successful empty array; configured entries are returned; provider call count is zero.",
+      "id": "OFF-016",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "`list` loads valid configuration and lists all configured wikis without resolving or starting provider executables."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test list off_017 -- --exact`. Fixture/assertion scope: Execute JSON list fixtures where the global default is enabled, disabled for one wiki, and absent.",
+      "expected_result": "The configured default appears only when enabled; otherwise JSON `null` is emitted.",
+      "id": "OFF-017",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "List output contains wiki ID, title, enabled agents, and a derived nullable default agent."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test doctor` matrix-selection cases and inspect JSON result keys.",
+      "expected_result": "There is exactly one result per selected pair; static mode makes no paid model request.",
+      "id": "OFF-018",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Static doctor checks every configured wiki/provider pair by default and `--wiki` and `--agent` narrow the matrix."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test doctor off_019 -- --exact`. Fixture/assertion scope: Invoke `doctor --live` with neither selector, each selector alone, and both together using a fake provider.",
+      "expected_result": "Incomplete selection exits 2 with `ARGUMENT_INVALID` and zero paid calls; the fully selected case invokes exactly one live verification.",
+      "id": "OFF-019",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "`doctor --live` consumes quota only when explicitly requested and requires both one wiki and one agent selector."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test doctor off_020 -- --exact`. Fixture/assertion scope: Run platform-path unit tests with isolated APPDATA, XDG_CONFIG_HOME, and home-directory inputs.",
+      "expected_result": "Paths resolve to `%APPDATA%\\llm-wikis\\config.toml`, XDG or `~/.config/llm-wikis/config.toml`, and `~/Library/Application Support/llm-wikis/config.toml` respectively.",
+      "id": "OFF-020",
+      "phase": "offline",
+      "platform": "Windows, Linux/WSL, macOS",
+      "requirement": "Default configuration locations are platform-native and match the specification."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test doctor off_021 -- --exact`. Fixture/assertion scope: Run relative-override rejection tests; launch the binary from an unrelated temporary cwd with an explicit config; place a decoy config in cwd.",
+      "expected_result": "Relative override fails with `ARGUMENT_INVALID`; explicit absolute config is used; cwd decoy is ignored.",
+      "id": "OFF-021",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "`--config` accepts only an absolute trusted path and configuration discovery never walks the caller's current project."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test doctor off_022 -- --exact`. Fixture/assertion scope: Run JSON list and doctor with malformed config and invalid selectors.",
+      "expected_result": "`ok` is false; list has empty `wikis`, doctor has empty `results`; exactly one normalized top-level error is present.",
+      "id": "OFF-022",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "List and doctor command-level argument or configuration failures use one top-level public error and empty result arrays."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test doctor off_023 -- --exact`. Fixture/assertion scope: Run table-driven mixed doctor failure-class tests with an instrumented fake provider.",
+      "expected_result": "All selected static checks complete first; pair failures remain in checks; process exit uses the first present precedence class.",
+      "id": "OFF-023",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Doctor keeps pair-specific failures in result checks, completes static checks before live work, and applies precedence 70, 7, 6, 5, 4, 3, 2, 0."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test config_contract off_024 -- --exact`. Fixture/assertion scope: Run configuration tests for missing/wrong version, malformed TOML, unknown keys at every table level, and mistyped values.",
+      "expected_result": "Every invalid file returns `CONFIG_INVALID`; no unknown value is silently accepted.",
+      "id": "OFF-024",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "TOML deserialization is strict: `config_version` is required and equals 1, and unknown or mistyped keys fail."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test config_contract off_025 -- --exact`. Fixture/assertion scope: Parse configs omitting default_agent, runtime fields, providers, profiles, and wikis; inspect the resolved model.",
+      "expected_result": "Runtime fields independently default to 180, 65536, 1048576, 65536, and warn; optional maps are empty; provider executable defaults only when its provider table exists.",
+      "id": "OFF-025",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Optional configuration tables and fields receive only the documented defaults."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test config_contract off_026 -- --exact`. Fixture/assertion scope: Run config tests with zero, negative, non-integer, and valid positive values for all three byte limits.",
+      "expected_result": "Invalid values return `CONFIG_INVALID`; positive values are preserved exactly.",
+      "id": "OFF-026",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Question and stream byte limits are positive integers."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test config_contract off_027 -- --exact`. Fixture/assertion scope: Run service-boundary tests with invalid UTF-8, exact-boundary multibyte UTF-8, and one-byte overflow; inspect runner calls.",
+      "expected_result": "Test exits 0 after asserting invalid input is `QUESTION_INVALID_UTF8`, exact boundary reaches the injected provider once, one-byte overflow is `QUESTION_TOO_LARGE`, and invalid/overflow provider-call counts are zero.",
+      "id": "OFF-027",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Complete stdin UTF-8 validation and exact `max_question_bytes` enforcement occur inside Query Service before provider startup."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test config_contract off_028 -- --exact`. Fixture/assertion scope: Run one strict-config fixture per missing field, empty agents, duplicate agents, and a complete valid wiki.",
+      "expected_result": "Invalid cases return `CONFIG_INVALID`; the complete wiki resolves.",
+      "id": "OFF-028",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "A wiki requires title, project_root, content_root, query_profile, and a non-empty unique agents array."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test config_contract off_029 -- --exact`. Fixture/assertion scope: Run resolver tests with each table absent.",
+      "expected_result": "Missing global provider is `PROVIDER_CONFIG_MISSING`; missing profile provider is `PROVIDER_PROFILE_MISSING`.",
+      "id": "OFF-029",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "An enabled provider requires a global provider table and a corresponding table in the referenced profile."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test config_contract off_030 -- --exact`. Fixture/assertion scope: Run resolver tests for a missing referenced profile and a contract other than `wiki-query/v1`.",
+      "expected_result": "Results are `QUERY_PROFILE_NOT_FOUND` and `CONTRACT_UNSUPPORTED`, both exit 2.",
+      "id": "OFF-030",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Missing profiles and unsupported contracts fail with their stable codes."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test config_contract off_031 -- --exact`. Fixture/assertion scope: Use a relative-root fixture config and invoke from two unrelated working directories.",
+      "expected_result": "Both runs resolve the same canonical roots relative to the config directory.",
+      "id": "OFF-031",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "project_root and content_root resolve relative to the configuration file, not process cwd."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test config_contract off_032 -- --exact`. Fixture/assertion scope: Run path tests for contained directory, missing path, regular file, and canonical path outside project_root.",
+      "expected_result": "Test exits 0 after asserting contained directory resolves, missing path and regular-file root each return `WIKI_INVALID`, and canonical outside path returns `PATH_OUTSIDE_ALLOWED_ROOT`; all failures start zero providers.",
+      "id": "OFF-032",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "content_root must be a real directory canonically contained by project_root."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test config_contract off_033 -- --exact`. Fixture/assertion scope: Run resolution tests for valid relative paths and attempts to escape each declared root.",
+      "expected_result": "Valid artifacts resolve canonically; escapes return `PATH_OUTSIDE_ALLOWED_ROOT`.",
+      "id": "OFF-033",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Project-skill paths resolve under project_root; Claude local plugin_dir resolves from config and its skill_path resolves under plugin_dir."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test config_contract off_034 -- --exact`. Fixture/assertion scope: Run platform path fixtures containing each available special entry at root components and recursively under protected trees.",
+      "expected_result": "Every encountered special entry returns `UNSAFE_FILESYSTEM_ENTRY`, even when its target remains contained.",
+      "id": "OFF-034",
+      "phase": "offline",
+      "platform": "Windows, Linux/WSL, macOS",
+      "requirement": "Every configured path component and every entry in content_root and the selected skill/plugin artifact tree rejects symlinks, junctions, reparse points, mounts, and special entries."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test config_contract off_035 -- --exact`. Fixture/assertion scope: Place a special entry in an unrelated project_root subtree outside content_root and the selected artifact tree; run preflight.",
+      "expected_result": "Preflight does not scan or reject the unrelated subtree.",
+      "id": "OFF-035",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Special-entry scans do not recursively reject unrelated portions of project_root."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test config_contract off_036 -- --exact`. Fixture/assertion scope: Run canonical traversal fixtures without special entries and corresponding symlink fixtures.",
+      "expected_result": "Regular escape maps to `PATH_OUTSIDE_ALLOWED_ROOT`; special path maps to `UNSAFE_FILESYSTEM_ENTRY`.",
+      "id": "OFF-036",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Canonical regular paths outside their declared roots return `PATH_OUTSIDE_ALLOWED_ROOT`, distinct from special-entry errors."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test config_contract off_037 -- --exact`. Fixture/assertion scope: Run config and CLI tests for valid IDs, uppercase, separators, duplicates, an unregistered ID, and a path-like selector.",
+      "expected_result": "Only `[a-z0-9]+` components joined by single hyphens pass; unregistered/path input is `WIKI_NOT_ALLOWED` or argument rejection without path access.",
+      "id": "OFF-037",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Wiki IDs match lowercase kebab syntax, are unique, and query callers can select only registered IDs rather than paths."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test config_contract off_038 -- --exact`. Fixture/assertion scope: Run executable-value tests with command names, absolute paths, spaces as arguments, metacharacters, newlines, and relative components.",
+      "expected_result": "Only one safe command name or one absolute path passes validation.",
+      "id": "OFF-038",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Provider executable configuration is one command name or one absolute path and rejects arguments, shell syntax, controls, and relative path components."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test config_contract off_039 -- --exact`. Fixture/assertion scope: Run isolated executable-resolution tests and JSON static doctor against fixture executables.",
+      "expected_result": "Resolution is deterministic and doctor exposes only the canonical executable path and version, not unrelated environment values.",
+      "id": "OFF-039",
+      "phase": "offline",
+      "platform": "Windows, Linux/WSL, macOS",
+      "requirement": "Provider command names resolve through current PATH and Windows PATHEXT, and doctor reports the canonical selected path and recorded version."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test config_contract off_040 -- --exact`. Fixture/assertion scope: Parse valid fixtures for each supported mode and invalid Codex installed-plugin or unknown load modes.",
+      "expected_result": "The three supported forms resolve; Codex namespaced installed plugin and unknown modes fail closed.",
+      "id": "OFF-040",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Supported load modes are Claude project_skill, Claude local_plugin, and Codex project_skill only."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test config_contract off_041 -- --exact`. Fixture/assertion scope: Run query-service probe-gate tests for no, current, and mismatched records with a paid-call counter.",
+      "expected_result": "Only the exact current record allows invocation; all other cases return `ENTRYPOINT_UNVERIFIED`; query publishes no probe and never probes live.",
+      "id": "OFF-041",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Normal query is disabled until a current live probe matches machine, executable/version, roots, profile, entrypoint, configuration identity, and artifact fingerprint; query never performs a live probe implicitly."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test config_contract off_042 -- --exact`. Fixture/assertion scope: Run table-driven entrypoint tests containing all accepted characters and valid boundaries.",
+      "expected_result": "Valid forms pass without rewriting or inferred namespaces.",
+      "id": "OFF-042",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Entrypoints accept exact Claude `/name`, Claude `/plugin-name:skill-name`, and unnamespaced Codex `$name` grammars with ASCII letters, digits, dots, underscores, and hyphens."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test config_contract off_043 -- --exact`. Fixture/assertion scope: Run table-driven invalid entrypoint fixtures.",
+      "expected_result": "Every invalid value returns `ENTRYPOINT_INVALID` before provider startup.",
+      "id": "OFF-043",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Entrypoints reject bad prefixes, wrong colon counts, Codex namespaces, whitespace, newlines, controls, quotes, shell metacharacters, and multiple tokens."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test config_contract off_044 -- --exact`. Fixture/assertion scope: Inspect prompt-builder tests with differently named skills and deliberately unrelated skill_path names.",
+      "expected_result": "The first prompt token exactly equals configured entrypoint in every case.",
+      "id": "OFF-044",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "The wrapper uses the configured entrypoint exactly and never appends namespaces, renames it, or infers it from skill_path."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test config_contract off_045 -- --exact`. Fixture/assertion scope: Parse fixtures containing each forbidden field named in specification Section 6.4.",
+      "expected_result": "Every fixture returns `CONFIG_INVALID`; none reaches provider argv or prompt construction.",
+      "id": "OFF-045",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Unknown configuration rejects raw provider arguments, shell commands, prompts, tool lists, sandbox, and MCP fields; provider safety flags and prompt envelope remain implementation-owned."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test skill_contract off_046 -- --exact`. Fixture/assertion scope: Inspect `agents/overrides/wiki-query/SKILL.md`, upstream skill, and repository changes; run overlay contract tests.",
+      "expected_result": "Overlay has an explicit early external-readonly branch, interactive behavior remains, and upstream dependency files are not modified or claimed as owned.",
+      "id": "OFF-046",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "The project-owned overlay, not the upstream dependency, owns external-readonly behavior while preserving the upstream interactive workflow."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test skill_contract off_047 -- --exact`. Fixture/assertion scope: Invoke `agents/bin/deploy-wiki-query-overlay.ps1` and `agents/bin/deploy-wiki-query-overlay.sh` in isolated copies twice, then hash overlay and both destinations after each run.",
+      "expected_result": "Both deployed copies exactly equal the overlay; repeated deployment is deterministic.",
+      "id": "OFF-047",
+      "phase": "offline",
+      "platform": "Windows, Linux/WSL, macOS",
+      "requirement": "Deterministic Windows and POSIX deployment scripts copy the overlay byte-for-byte to both Claude and Codex project-skill destinations."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test probes off_048 -- --exact`. Fixture/assertion scope: Establish a valid probe fixture, mutate or roll back the artifact, then run normal query without another live doctor.",
+      "expected_result": "Query fails `ENTRYPOINT_UNVERIFIED` before provider invocation until the changed state passes live doctor.",
+      "id": "OFF-048",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "An APM refresh or any selected skill/plugin artifact change invalidates the probe and cannot silently restore write-capable behavior."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test skill_contract off_049 -- --exact`. Fixture/assertion scope: Run prompt-builder golden tests for both providers and all load modes.",
+      "expected_result": "Prompt contains exact contract, external-readonly mode, selected wiki ID, canonical content root, and question fields in wrapper-serialized JSON.",
+      "id": "OFF-049",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "The prompt starts with the exact configured entrypoint followed by the fixed EXTERNAL_QUERY JSON envelope and no configurable template content."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test skill_contract off_050 -- --exact`. Fixture/assertion scope: Run adversarial prompt tests using quotes, backticks, `$()`, JSON-looking text, ampersand, redirection characters, newlines, and Traditional Chinese.",
+      "expected_result": "Decoding the envelope recovers the exact question string; no question bytes alter entrypoint, provider argv, or envelope structure.",
+      "id": "OFF-050",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "The question is untrusted JSON data rather than interpolated prompt or shell syntax."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test skill_contract off_051 -- --exact`. Fixture/assertion scope: Run the overlay contract against distinct temporary project_root and contained content_root fixtures.",
+      "expected_result": "Reads and citations come only from the explicit configured content root.",
+      "id": "OFF-051",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "External-readonly skill behavior uses the explicit content_root instead of repository guesses."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test skill_contract off_052 -- --exact`. Fixture/assertion scope: Execute fixture skill contract tests with required facts distributed across those sources and instrumented read evidence.",
+      "expected_result": "The normalized answer demonstrates all required read stages and one cross-reference level.",
+      "id": "OFF-052",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "External-readonly mode reads SCHEMA.md, link-style configuration, the complete index, relevant pages, and one relevant level of cross-references."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test skill_contract off_053 -- --exact`. Fixture/assertion scope: Run synthetic fixtures containing an explicit disagreement with common knowledge and a missing fact.",
+      "expected_result": "Answer reports the wiki-grounded disagreement and represents missing material as gaps or follow-up questions without invented facts.",
+      "id": "OFF-053",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "External-readonly answers treat wiki content as source of truth and do not fill gaps from general knowledge."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test skill_contract off_054 -- --exact`. Fixture/assertion scope: Run overlay behavior fixtures exercising each output category and validate the model result schema.",
+      "expected_result": "Applicable content is returned in normalized fields with native page citations.",
+      "id": "OFF-054",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "External-readonly results include grounded answer content, native inline page citations, disagreements, gaps, and follow-up questions when applicable."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test skill_contract off_055 -- --exact`. Fixture/assertion scope: Run overlay contract tests with before/after full-tree snapshots and inspect the answer text.",
+      "expected_result": "Snapshots are identical and no saving offer or mutation instruction appears.",
+      "id": "OFF-055",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "External-readonly behavior omits answer-saving offers, never regenerates the index, and never writes pages, logs, reports, commits, caches, or other files."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test skill_contract off_056 -- --exact`. Fixture/assertion scope: Inspect overlay control flow and run external and interactive fixture invocations.",
+      "expected_result": "External mode enters the non-mutating branch before interactive mutation instructions; interactive behavior is preserved.",
+      "id": "OFF-056",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "The existing skill contains an explicit early external-readonly mode branch rather than a late prompt contradiction, while interactive invocation remains available."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test model_contract off_057 -- --exact`. Fixture/assertion scope: Run model-validation table tests with each field missing, mistyped, empty, or unknown status and one fully valid object.",
+      "expected_result": "Only the exact `wiki-query/v1` structure is accepted; invalid objects return `CONTRACT_VIOLATION`.",
+      "id": "OFF-057",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Model results require exact contract, enumerated knowledge_status, non-empty answer, and string arrays for citations, gaps, and warnings."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test model_contract off_058 -- --exact`. Fixture/assertion scope: Validate grounded fixtures with no citations, only ignored drive-by references, valid inline citation, and valid returned-array citation.",
+      "expected_result": "Citationless or drive-by-only grounded results fail `CONTRACT_VIOLATION`; either valid page-provenance source passes.",
+      "id": "OFF-058",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "A grounded model result requires at least one page citation that resolves after deterministic normalization."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test model_contract off_059 -- --exact`. Fixture/assertion scope: Run validation cases with citations, no gaps, empty gaps, and the valid combination.",
+      "expected_result": "Only empty citations plus a non-empty gap pass; all other combinations are `CONTRACT_VIOLATION`.",
+      "id": "OFF-059",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "A no_relevant_material result requires an empty citation array and at least one non-empty gap."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test model_contract off_060 -- --exact`. Fixture/assertion scope: Feed Claude/Codex fixtures containing successful native metadata but no valid model result.",
+      "expected_result": "Test exits 0 after asserting both syntactically valid native envelopes without a model object return `CONTRACT_VIOLATION`, exit 6, and no success envelope.",
+      "id": "OFF-060",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Provider-native metadata never substitutes for the required model result object."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test query_service off_061 -- --exact`. Fixture/assertion scope: Inspect `src/lib.rs`, service modules, and dependency-injected integration tests.",
+      "expected_result": "Each responsibility is isolated; provider-specific parsing and argv remain behind adapters.",
+      "id": "OFF-061",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "The internal Query Service has bounded config loader, wiki resolver, preflight, provider adapter, and result normalizer boundaries and is provider-neutral."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test query_service off_062 -- --exact`. Fixture/assertion scope: Inspect QueryService public API and service-boundary tests that call it without CLI.",
+      "expected_result": "Service enforces question/config/query rules itself and has no terminal, clap, probe-publication, or direct process-creation side effects.",
+      "id": "OFF-062",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "CLI and future trusted callers use Query Service validation directly; Query Service does not print, parse CLI arguments, publish probes, or bypass UTF-8 and size checks."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test query_service off_063 -- --exact`. Fixture/assertion scope: Run one preflight fixture with each required artifact missing or invalid and one complete fixture.",
+      "expected_result": "Test exits 0 after asserting missing SCHEMA/index/pages/rules file is `WIKI_INVALID`, unsupported style is `LINK_STYLE_UNSUPPORTED`, escaping rules path is `PATH_OUTSIDE_ALLOWED_ROOT`, invalid selected artifact is `ENTRYPOINT_INVALID`, complete fixture reaches the injected provider once, and all defect cases reach it zero times.",
+      "id": "OFF-063",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Preflight requires SCHEMA.md, supported or default link style, contained rules file when named, wiki/index.md, wiki/pages, and statically addressable selected skill/plugin artifacts."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test query_service off_064 -- --exact`. Fixture/assertion scope: Use an instrumented fake runner and inspect call order for a normal query.",
+      "expected_result": "Version and auth probes occur before provider invocation; their bounds and errors are enforced.",
+      "id": "OFF-064",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Preflight resolves the provider executable and runs bounded version and non-billable authentication readiness before paid invocation."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test query_service off_065 -- --exact`. Fixture/assertion scope: Run query-service ordering tests with missing and mismatched probes and an invocation counter.",
+      "expected_result": "Query returns `ENTRYPOINT_UNVERIFIED` and the paid invocation counter remains zero.",
+      "id": "OFF-065",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Artifact fingerprint and exact current live-probe verification occur before prompt invocation."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test query_service off_066 -- --exact`. Fixture/assertion scope: Run instrumented query-flow tests recording stage order for success and each failure class.",
+      "expected_result": "Observed stage order matches specification Section 8.1 and integrity comparison precedes any returned provider content.",
+      "id": "OFF-066",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Query flow snapshots before invocation, parses and validates output and citations, always resnapshots afterward, rejects mutation, namespaces citations, and then emits one envelope."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test query_service off_067 -- --exact`. Fixture/assertion scope: Run resolver tests for registered/enabled pair, unregistered wiki, and disabled provider.",
+      "expected_result": "Valid pair resolves once; failures are `WIKI_NOT_ALLOWED` or `AGENT_UNSUPPORTED` before provider startup.",
+      "id": "OFF-067",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Exactly one registered wiki and one enabled provider are resolved for each query."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test query_service off_068 -- --exact`. Fixture/assertion scope: Run differently named profile tests and inspect CLI/service source for hard-coded current entrypoints outside examples/tests.",
+      "expected_result": "Compatible differently named project skills work by configuration only; provider choice does not change the public query contract.",
+      "id": "OFF-068",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "The public command remains provider-neutral and current `/wiki-query` and `$wiki-query` names are configuration rather than constants."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test wiki_preflight off_069 -- --exact`. Fixture/assertion scope: Run query fixtures with an executable sentinel index generator and inspect process calls and content snapshots.",
+      "expected_result": "Generator is never called and index bytes remain unchanged.",
+      "id": "OFF-069",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "External query never invokes `bin/generate-index.py` or otherwise regenerates the index."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test wiki_preflight off_070 -- --exact`. Fixture/assertion scope: Run preflight with valid schema/pages but no `wiki/index.md`.",
+      "expected_result": "Query and doctor fail before provider startup with `WIKI_INVALID`, exit 2.",
+      "id": "OFF-070",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "A missing wiki index is `WIKI_INVALID`."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test wiki_preflight off_071 -- --exact`. Fixture/assertion scope: Set controlled page/index modification times with one page newer and run freshness checks.",
+      "expected_result": "Freshness reports stale independent of index text equality.",
+      "id": "OFF-071",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Any non-excluded page newer than the index makes the index stale."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test wiki_preflight off_072 -- --exact`. Fixture/assertion scope: Run freshness fixtures containing both exact Obsidian/Markdown generated lines and misleading incidental links.",
+      "expected_result": "Only exact generated-list entries contribute to the index-entry set.",
+      "id": "OFF-072",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Freshness parses only exact generated-list shapes and ignores incidental links on other lines."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test wiki_preflight off_073 -- --exact`. Fixture/assertion scope: Run table-driven freshness fixtures for excluded audit pages and each set mismatch.",
+      "expected_result": "Audit pages are ignored; every other mismatch is stale even when timestamps are equal.",
+      "id": "OFF-073",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Freshness excludes current-schema `audit-*.md` pages and requires exact equality between remaining regular page stems and index entries, detecting missing, duplicate, extra, and case mismatch."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test wiki_preflight off_074 -- --exact`. Fixture/assertion scope: Execute the same stale fixture under warn and error policies.",
+      "expected_result": "Warn produces a wrapper warning and continues; error exits 2 before provider invocation.",
+      "id": "OFF-074",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Freshness policy warn continues with `INDEX_MAY_BE_STALE`; policy error stops with `INDEX_STALE`."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test wiki_preflight off_075 -- --exact`. Fixture/assertion scope: Run timestamp fixtures with equal times and coarse-rounded times plus entry-set mismatches.",
+      "expected_result": "Equal/coarse time alone does not falsely fail; mechanical entry-set mismatch still reports stale.",
+      "id": "OFF-075",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Freshness behaves conservatively with equal and coarse-resolution timestamps."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test citations off_076 -- --exact`. Fixture/assertion scope: Run citation fixtures containing formal footnotes and page provenance together and separately.",
+      "expected_result": "Test exits 0 after asserting only page provenance appears in public citations; raw/assets/HTTP footnote text remains unchanged in answer prose, never appears in public citations, and alone yields `CONTRACT_VIOLATION`.",
+      "id": "OFF-076",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Query-provenance page citations are distinct from formal wiki footnotes to raw files, assets, or HTTP resources."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test citations off_077 -- --exact`. Fixture/assertion scope: Parse schema fixtures with absent, obsidian, markdown, and unsupported values.",
+      "expected_result": "Absent and explicit obsidian select Obsidian parser; markdown selects Markdown parser; unsupported is rejected.",
+      "id": "OFF-077",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "link_style is read from SCHEMA.md and defaults to `obsidian` only when the field is absent."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test citations off_078 -- --exact`. Fixture/assertion scope: Run extractor table tests for exact links, labels, whitespace, uppercase, anchors, paths, and malformed links.",
+      "expected_result": "Only exact safe slug form is extracted; other inline prose is ignored.",
+      "id": "OFF-078",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "The Obsidian parser recognizes only exact `[[slug]]` with a complete lowercase safe slug."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test citations off_079 -- --exact`. Fixture/assertion scope: Run extractor tests for both valid forms and mismatched, unsafe, case-varied, or malformed forms.",
+      "expected_result": "Only the two exact matching forms are extracted.",
+      "id": "OFF-079",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "The Markdown parser recognizes exact `[[slug]]` and exact `[[slug](pages/slug.md)]` only when both slug occurrences are safe and identical."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test citations off_080 -- --exact`. Fixture/assertion scope: Feed every excluded inline form to both built-in parsers.",
+      "expected_result": "Extracted citation list remains empty and no `CITATION_INVALID` is raised solely for prose.",
+      "id": "OFF-080",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Inline raw, assets, HTTP links, ordinary Markdown links, labels, and malformed wiki-link prose are ignored rather than emitted or marked invalid."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test citations off_081 -- --exact`. Fixture/assertion scope: Run normalization with repeated interleaved inline and array slugs.",
+      "expected_result": "Output order is deterministic first occurrence across inline then array sources.",
+      "id": "OFF-081",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Inline slugs preserve answer order, returned-array slugs append in array order, and the combined list deduplicates by first occurrence."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test citations off_082 -- --exact`. Fixture/assertion scope: Validate returned-array fixtures using a bare slug, one supported outer delimiter, nested delimiters, and malformed delimiters.",
+      "expected_result": "Bare and exactly one accepted outer wrapper normalize to the slug; nested/malformed candidates fail safely.",
+      "id": "OFF-082",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "One outer link delimiter may be removed from returned-array citation candidates before safe-slug validation."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test citations off_083 -- --exact`. Fixture/assertion scope: Run one returned-array fixture for each unsafe category alongside a later valid citation.",
+      "expected_result": "Each result is discarded completely with `CITATION_INVALID`; later valid items do not salvage it.",
+      "id": "OFF-083",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Explicit model citation elements containing separators, traversal, anchors, URLs, or unsafe characters fail fast with `CITATION_INVALID`."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test citations off_084 -- --exact`. Fixture/assertion scope: Run resolution tests for exact file, missing file, directory, nested file, wrong suffix, and case mismatch including Windows.",
+      "expected_result": "Only exact ASCII filename-stem match to a direct regular `.md` file passes; failures are `CITATION_NOT_FOUND`.",
+      "id": "OFF-084",
+      "phase": "offline",
+      "platform": "Windows, Linux/WSL, macOS",
+      "requirement": "Safe slugs resolve only to exact-case regular `.md` files directly under wiki/pages."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test citations off_085 -- --exact`. Fixture/assertion scope: Parse fixtures with missing/duplicate headings, indented fields, duplicate fields, trailing prose, invalid values, and a valid subsection ending at the next level-two heading.",
+      "expected_result": "Invalid schemas are `WIKI_INVALID`; exact fields parse deterministically.",
+      "id": "OFF-085",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "SCHEMA cross-reference parsing requires one exact level-two heading and at most one exact link_style and link_style_rules field with strict syntax."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test citations off_086 -- --exact`. Fixture/assertion scope: Run rules-path fixtures for valid file, absolute/traversal path, escape, missing/non-regular/non-md file, and malicious-looking rule contents.",
+      "expected_result": "Only contained regular `.md` path passes; content remains inert documentation.",
+      "id": "OFF-086",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "link_style_rules is a slash-separated relative path contained by content_root and names a regular `.md` file; its contents are not executed or parsed as configuration."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test citations off_087 -- --exact`. Fixture/assertion scope: Run preflight with a syntactically valid but unsupported link_style.",
+      "expected_result": "Preflight fails before provider startup with `LINK_STYLE_UNSUPPORTED`, exit 2.",
+      "id": "OFF-087",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Any non-built-in link style returns `LINK_STYLE_UNSUPPORTED`."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test citations off_088 -- --exact`. Fixture/assertion scope: Normalize a grounded result with those targets in prose and no valid page citation.",
+      "expected_result": "Complete answer is rejected with `CONTRACT_VIOLATION`.",
+      "id": "OFF-088",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "A grounded result supported only by raw, asset, or HTTP drive-by targets fails `CONTRACT_VIOLATION`."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test citations off_089 -- --exact`. Fixture/assertion scope: Run normalization for invalid citation, missing citation, citationless grounded prose, and cited no_relevant_material prose.",
+      "expected_result": "Stable citation or contract error is returned, answer is null in public failure, and prose does not change status.",
+      "id": "OFF-089",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Citation failures discard the complete answer; status is never inferred from prose."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test citations off_090 -- --exact`. Fixture/assertion scope: Feed a model result containing namespace-like prose or extra metadata and normalize under a different selected wiki ID.",
+      "expected_result": "Every public citation contains only selected wiki ID plus validated slug.",
+      "id": "OFF-090",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Public citation objects use the wrapper-selected wiki ID and never trust a model-supplied namespace."
+    },
+    {
+      "command_or_inspection": "Closed procedure: (1) parse this checklist; (2) require PASS with non-empty evidence for OFF-010, OFF-021, OFF-032, OFF-034, OFF-037, OFF-038, OFF-045, OFF-050, OFF-055, OFF-069, OFF-092, OFF-093, OFF-094, OFF-095, OFF-096, PROC-001, PROC-003, PROC-005, PROC-006, PROC-007, PROC-010, PROC-015, PROC-017, PROC-020, and PROC-022; (3) fail on any absent, PENDING, or FAIL prerequisite.",
+      "expected_result": "PASS only when all 25 closed prerequisite rows are PASS with evidence; otherwise OFF-091 remains PENDING or FAIL and cannot self-certify read-only enforcement.",
+      "id": "OFF-091",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Read-only enforcement is the mechanical roll-up of the independently verified allowlist, containment, transport, provider-policy, no-generator, limit, and snapshot controls."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test mutation_snapshot off_092 -- --exact`. Fixture/assertion scope: Build a fixture containing each subtree category, take a snapshot, and inspect normalized entries.",
+      "expected_result": "Every directory and regular file appears; no content-root subtree is excluded.",
+      "id": "OFF-092",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "The integrity snapshot covers every directory and regular file beneath canonical content_root, including schema, config, helpers, hooks, raw/assets, index/log/overview, and pages."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test mutation_snapshot off_093 -- --exact`. Fixture/assertion scope: Run snapshot tests for each mutation type including preserved timestamp and same length.",
+      "expected_result": "Each change produces a non-equal snapshot and identifies its relative path.",
+      "id": "OFF-093",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Snapshots record normalized path and type plus byte length and streaming SHA-256 for files, detecting additions, removals, type changes, and same-size rewrites with restored timestamps."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test mutation_snapshot off_094 -- --exact`. Fixture/assertion scope: Run snapshot fixtures containing each platform-available special entry.",
+      "expected_result": "Snapshot aborts with `UNSAFE_FILESYSTEM_ENTRY` before provider content can be returned.",
+      "id": "OFF-094",
+      "phase": "offline",
+      "platform": "Windows, Linux/WSL, macOS",
+      "requirement": "Snapshot traversal rejects every symlink, junction, reparse point, mount, and other special entry."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test query_service off_095 -- --exact`. Fixture/assertion scope: Run query tests that mutate content during each outcome and record snapshot calls.",
+      "expected_result": "After-snapshot runs for every outcome and mutation is detected.",
+      "id": "OFF-095",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "The after-snapshot runs in guaranteed cleanup after success, provider failure, timeout, and stdout or stderr overflow."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test query_service off_096 -- --exact`. Fixture/assertion scope: Run table-driven failure-precedence tests for every non-internal failure plus mutation and for an after-snapshot internal failure.",
+      "expected_result": "Mutation cases return exit 7 with secondary error; integrity-comparison failure returns exit 70.",
+      "id": "OFF-096",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "`READ_ONLY_VIOLATION` exit 7 dominates simultaneous exit 2 through 6 failures and preserves only displaced sanitized code/message; inability to complete integrity comparison is `INTERNAL_ERROR` exit 70."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test doctor off_097 -- --exact`. Fixture/assertion scope: Run static doctor against plugin manifests with each forbidden component and a minimal valid identity manifest.",
+      "expected_result": "Forbidden manifests fail before provider startup; minimal non-executable plugin passes static addressability.",
+      "id": "OFF-097",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Claude local plugins declaring hooks, MCP servers, settings, or other executable lifecycle components fail closed; only the configured query skill is allowed."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test output_contract off_098 -- --exact`. Fixture/assertion scope: Run JSON golden tests for grounded and no_relevant_material successes.",
+      "expected_result": "Output fields and types exactly match schema version 1.0 public contract with no unknown fields.",
+      "id": "OFF-098",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Query success JSON matches the normalized public envelope including wiki metadata, agent, contract, status, answer, citations, gaps, warnings, duration, child exit, and native raw format."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test output_contract off_099 -- --exact`. Fixture/assertion scope: Run golden tests for pre-resolution argument failure and post-resolution provider failure.",
+      "expected_result": "Test exits 0 after asserting early failure has wiki/agent/knowledge_status/answer/raw_format null and empty citations/gaps/warnings; post-resolution failure retains wiki/agent and has knowledge_status/answer null with empty citations/gaps.",
+      "id": "OFF-099",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Query failure JSON uses null unresolved wiki/agent fields for early argument failures and normalized empty/null result fields elsewhere."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test output_contract off_100 -- --exact`. Fixture/assertion scope: Normalize a result containing freshness, read-scope, and multiple provider warnings.",
+      "expected_result": "Wrapper warnings retain stable codes/order; provider warnings become source provider and code `PROVIDER_WARNING`; no unknown fields appear.",
+      "id": "OFF-100",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Public warnings are closed source/code/message objects with wrapper warnings first in deterministic order and provider strings normalized afterward in model order."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test output_contract off_101 -- --exact`. Fixture/assertion scope: Run public-envelope tests for valid native outputs and failures before/during parsing.",
+      "expected_result": "Exact enumerated value or null is emitted according to parsing stage.",
+      "id": "OFF-101",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "raw_format is `claude-json` only after parsed Claude output, `codex-jsonl` only after parsed Codex events, and null before a native format is established."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test output_contract off_102 -- --exact`. Fixture/assertion scope: Serialize every AppError variant and schema-validate the JSON.",
+      "expected_result": "Required fields are always present, details contain only error-specific allowed keys, and no internal diagnostics leak.",
+      "id": "OFF-102",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Every public error has required string code/message and an optional closed details object."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test output_contract off_103 -- --exact`. Fixture/assertion scope: Trigger one-byte overflow independently on both streams and parse public details.",
+      "expected_result": "Stream is exact, counts are correct integers, and observed bytes exceed limit.",
+      "id": "OFF-103",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "OUTPUT_TOO_LARGE details identify stdout or stderr and report non-negative limit and observed bytes with observed greater than limit."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test output_contract off_104 -- --exact`. Fixture/assertion scope: Mutate multiple paths in unsorted order while inducing a timeout; parse failure JSON on every supported platform; inject a Windows-backslash serialization case.",
+      "expected_result": "Paths are sorted, unique, relative, content-free, and always slash-separated with `/`; a changed_paths value containing `\\` is rejected even on Windows; secondary error has only code/message and no nested details.",
+      "id": "OFF-104",
+      "phase": "offline",
+      "platform": "Windows, Linux/WSL, macOS",
+      "requirement": "READ_ONLY_VIOLATION details contain sorted unique non-empty relative changed paths without content, absolute paths, traversal, or platform-native separators and optional one-level sanitized secondary error."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test model_contract off_105 -- --exact`. Fixture/assertion scope: Run the table-driven error-contract test covering all documented codes and compare against Section 14.",
+      "expected_result": "Test exits 0 after comparing every Section 14 code to its literal 2, 3, 4, 5, 6, 7, or 70 value and success to 0; no code is absent or maps to another value.",
+      "id": "OFF-105",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Every error code in specification Section 14 maps to its exact exit class and exit 0 means success."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test cli_contract off_106 -- --exact`. Fixture/assertion scope: Execute one representative public CLI failure from every exit class and capture process status/stdout/stderr.",
+      "expected_result": "Process status matches mapping; stdout is one failure envelope; no panic, traceback, or second document appears.",
+      "id": "OFF-106",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Wrapper process exit equals the documented class and failed `--json` invocations still emit exactly one envelope without panic or traceback."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test output_contract off_107 -- --exact`. Fixture/assertion scope: Induce equivalent config, CLI, auth, timeout, native-output, contract, mutation, and internal failures through query and doctor.",
+      "expected_result": "Matching errors produce matching codes and process exits in both commands.",
+      "id": "OFF-107",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Query and command-level doctor share the same stable error-to-exit mapping."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test output_contract off_108 -- --exact`. Fixture/assertion scope: Run adversarial provider stderr/native-error fixtures containing sentinel secrets and long protected data; inspect public warnings, errors, and stderr.",
+      "expected_result": "Test exits 0 after asserting every public/stderr field is within its configured byte cap, all sentinel prompt/prose/token/account/session/absolute-path strings are absent, and only slash-relative changed_paths are retained.",
+      "id": "OFF-108",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Diagnostics are bounded and sanitized: no full prompt, wiki prose, token, session/account identifier, or absolute protected path is exposed."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test doctor off_109 -- --exact`. Fixture/assertion scope: Run JSON static doctor on fixtures that pass and fail each check; schema-validate names, status, and code.",
+      "expected_result": "Names are only config, roots, wiki_structure, profile, entrypoint, executable, auth, index_freshness, read_scope, live_contract, or mutation; status is pass/warn/fail.",
+      "id": "OFF-109",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Static doctor checks config, roots, wiki structure, profile, entrypoint, executable/version, auth readiness, index freshness, and read scope using only the closed check-name vocabulary."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test doctor off_110 -- --exact`. Fixture/assertion scope: Run doctor schema tests with pass, warning-only, and failure matrices.",
+      "expected_result": "Code/status/overall-ok relationships match the closed contract.",
+      "id": "OFF-110",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Doctor check codes are null for pass, stable warning code for warn, or a Section 14 error code for fail; overall ok is false if any check fails."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test doctor off_111 -- --exact`. Fixture/assertion scope: Run fixture doctor/query for each provider and compare warning code/message golden values.",
+      "expected_result": "Claude and Codex warnings exactly match specification Sections 10.2 and 10.3 and use `read_scope` in doctor.",
+      "id": "OFF-111",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Static doctor and every query emit exact Claude or Codex broad-read warning text and recommend an OS sandbox/container, never a Codex user permission profile."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test doctor off_112 -- --exact`. Fixture/assertion scope: Capture provider stdin in live-doctor end-to-end tests and compare its question bytes to `Verify external-readonly mode by reporting one fact from the index with a valid\\nwiki citation. If the wiki has no pages, return no_relevant_material with a gap.`; also exercise each validation failure.",
+      "expected_result": "The question contains exactly the specified two sentences with one LF after `valid` and no added prose; probe publication happens only after valid citations/contract and identical snapshots; failures publish nothing.",
+      "id": "OFF-112",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Live doctor sends exactly the fixed two-sentence verification question from plan Task 12, validates contract/native/normalized output and unchanged snapshots, then records success outside the wiki."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test probes off_113 -- --exact`. Fixture/assertion scope: Run cache-path unit tests with isolated LOCALAPPDATA, XDG_CACHE_HOME, and home inputs plus roots that would collide.",
+      "expected_result": "Paths match `%LOCALAPPDATA%\\llm-wikis\\probes-v1.json`, XDG or `~/.cache/llm-wikis/probes-v1.json`, and `~/Library/Caches/llm-wikis/probes-v1.json`; collisions fail before provider startup.",
+      "id": "OFF-113",
+      "phase": "offline",
+      "platform": "Windows, Linux/WSL, macOS",
+      "requirement": "Probe-store paths are platform-native cache paths outside every configured wiki."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test probes off_114 -- --exact`. Fixture/assertion scope: Run fingerprint golden vectors with reordered creation, empty directories, binary files, and known expected digest.",
+      "expected_result": "Test exits 0 after asserting reordered creation equals the literal golden digest embedded in the test, each path/type/byte mutation differs, and every stored value matches lowercase `sha256:` plus 64 hex digits.",
+      "id": "OFF-114",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Artifact fingerprints cover sorted normalized directories/files and use path, NUL, big-endian u64 length, and raw bytes with lowercase `sha256:` encoding."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test probes off_115 -- --exact`. Fixture/assertion scope: Fingerprint valid plugin fixtures, mutate only the manifest, add special entries, and add forbidden manifest components.",
+      "expected_result": "Manifest-only changes alter fingerprint; unsafe or executable plugin content fails closed.",
+      "id": "OFF-115",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Claude local-plugin fingerprint also includes `.claude-plugin/plugin.json` and rejects special entries or executable lifecycle components."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test probes off_116 -- --exact`. Fixture/assertion scope: Run probe-reader tests with distinct keys, duplicate same-key records, and reordered file records.",
+      "expected_result": "Distinct keys do not collide; duplicate logical keys are unverified; one exact key can verify.",
+      "id": "OFF-116",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Probe logical key is exactly canonical roots, provider, profile, load mode, and entrypoint and permits zero or one record."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test probes off_117 -- --exact`. Fixture/assertion scope: Establish one valid record and vary each tuple field independently.",
+      "expected_result": "Every current-verification change returns `ENTRYPOINT_UNVERIFIED`.",
+      "id": "OFF-117",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Current verification additionally matches canonical executable path/version, contract, skill fingerprint, and normalized compatibility fingerprint."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test probes off_118 -- --exact`. Fixture/assertion scope: Run compatibility-fingerprint golden tests varying included and excluded fields.",
+      "expected_result": "Included semantic changes alter digest; excluded execution/presentation changes do not.",
+      "id": "OFF-118",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Compatibility fingerprint is canonical JSON over selected wiki, profile, executable declaration, and implementation safety/contract version; timeout, limits, freshness, comments, and TOML key order do not invalidate it."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test probes off_119 -- --exact`. Fixture/assertion scope: Run probe-publication tests with historical records and injected failure before rename.",
+      "expected_result": "Success leaves one current record; failure leaves original bytes unchanged; temporary replacement is atomic.",
+      "id": "OFF-119",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Successful live doctor atomically replaces all historical records for the logical key with exactly one current record and failed live doctor preserves the existing store."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test probes off_120 -- --exact`. Fixture/assertion scope: Run query gate tests for each record defect plus arbitrarily old but otherwise current verified_at.",
+      "expected_result": "Defects return `ENTRYPOINT_UNVERIFIED`; age alone does not invalidate; query does not modify cache bytes.",
+      "id": "OFF-120",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Query only reads probe cache; missing, malformed, duplicate, or mismatched records are unverified and records have no time-to-live in version 1."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test probes off_121 -- --exact`. Fixture/assertion scope: Inspect serialized probe fixture and platform permission tests after live publication.",
+      "expected_result": "Test exits 0 after asserting serialized keys equal OFF-142's closed field list, prompt/answer/wiki-content sentinels are absent, Unix mode is user-only where supported, and Windows ACL request excludes non-user write access.",
+      "id": "OFF-121",
+      "phase": "offline",
+      "platform": "Windows, Linux/WSL, macOS",
+      "requirement": "Probe writes request user-only permissions where supported and never store prompts, answers, or wiki content."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test doctor off_122 -- --exact`. Fixture/assertion scope: Run list/doctor golden-output tests for success, warning, pair failure, and command-level failure.",
+      "expected_result": "Test exits 0 after exact golden comparison: list success has schema_version/ok/operation/wikis; doctor success has schema_version/ok/operation/live/results; command failure adds error and uses an empty operation array; no unknown key appears.",
+      "id": "OFF-122",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "List and doctor JSON schemas exactly match schema version 1.0 operation-specific public envelopes."
+    },
+    {
+      "command_or_inspection": "Run `cargo fmt --check`; run `cargo clippy --all-targets --all-features -- -D warnings`; build `tests/fixtures/process-helper/Cargo.toml`; set `LLM_WIKIS_PROCESS_HELPER` to its binary; run `cargo test --all-targets --all-features`.",
+      "expected_result": "Every command exits 0; missing process-helper configuration fails rather than skips platform process tests.",
+      "id": "OFF-123",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Offline Rust quality gates pass with the separately built process helper configured."
+    },
+    {
+      "command_or_inspection": "Run `pwsh -NoProfile -Command \"$env:PYTHONUTF8='1'; python -m unittest discover -s agents/apm_modules/kfchou/wiki-skills/tests -v; if ($LASTEXITCODE) { exit $LASTEXITCODE }; $h=Get-FileHash -Algorithm SHA256 agents/overrides/wiki-query/SKILL.md,agents/.claude/skills/wiki-query/SKILL.md,agents/.agents/skills/wiki-query/SKILL.md; if (($h.Hash | Select-Object -Unique).Count -ne 1) { exit 1 }\"`.",
+      "expected_result": "Command exits 0; unittest reports zero failures/errors and the three SHA-256 values are identical.",
+      "id": "OFF-124",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Existing upstream wiki helper tests pass and both deployed skill copies remain byte-identical to the project overlay."
+    },
+    {
+      "command_or_inspection": "Closed procedure: (1) run `rg -n -e \"Installation\" -e \"Configuration\" -e \"config init\" -e \"doctor --live\" -e \"stdin\" -e \"schema_version\" -e \"exit\" -e \"read-only\" -e \"snapshot\" -e \"fresh\" -e \"probe\" -e \"quota\" -e \"READ_SCOPE_BROAD\" -e \"overlay\" -e \"Troubleshooting\" docs/llm-wikis.md`; (2) map each plan Task 16 Step 1–3 bullet to one exact line; (3) record the mapping table.",
+      "expected_result": "Every required bullet maps to at least one accurate line; no mapping is missing and no line claims an unsupported platform, load mode, provider row, or security boundary.",
+      "id": "OFF-125",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Operator documentation covers installation, configuration, commands, stdin/JSON/exit contracts, read-only layers, snapshots, freshness, probes, quota, read-scope limits, overlays, and troubleshooting."
+    },
+    {
+      "command_or_inspection": "Closed procedure: (1) run `rg -n -e \"ignore-user-config\" -e \"installed plugin\" -e \"APM\" -e \"deploy\" -e \"fingerprint\" -e \"doctor --live\" docs/llm-wikis.md`; (2) identify one line for each required statement; (3) compare supported alternatives with spec Sections 6.2 and 6.5.",
+      "expected_result": "Six searches return matching lines; docs explicitly defer Codex installed plugins, require overlay redeployment after every APM sync, state fingerprint invalidation, require a new live doctor, and list only supported project-skill/Claude-local-plugin alternatives.",
+      "id": "OFF-126",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Documentation identifies Codex installed plugins as deferred under `--ignore-user-config`, requires overlay redeployment after APM sync, and requires new live doctor after fingerprint change."
+    },
+    {
+      "command_or_inspection": "Run `rg --files -g \"development-handoff.md\"` and inspect Cargo/source targets for MCP or orchestration modules.",
+      "expected_result": "No handoff file is found and no excluded implementation exists.",
+      "id": "OFF-127",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "`development-handoff.md` remains absent and no MCP or orchestration production code is included."
+    },
+    {
+      "command_or_inspection": "Closed procedure: (1) parse this checklist; (2) require PASS with non-empty evidence for OFF-145, OFF-146, PROC-029, and PROC-030; (3) inspect OFF-145 evidence for the README declaration, dependency/import scan, exact-hash comparison, copy-similarity report, and per-file source-lineage manifest; (4) fail on any absent, PENDING, or FAIL prerequisite/artifact.",
+      "expected_result": "PASS only when all four prerequisite rows are PASS and OFF-145 contains every named objective artifact proving evidence-only/no-copy isolation; prose assertions or hashes without lineage/similarity evidence fail this row.",
+      "id": "OFF-128",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Disposable Phase 0 independence and test-first chronology are a mechanical roll-up over objective dependency-isolation, README ownership, source-lineage comparison, RED chronology, and provider-discovery evidence."
+    },
+    {
+      "command_or_inspection": "Closed procedure: (1) parse `docs/verification/llm-wikis-preflight.md` and linked fixtures; (2) require command, exit, timestamp, platform, version, PASS/FAIL/PENDING, and evidence path for every Task 2 spike; (3) scan for LIVE-010 forbidden fields; (4) require provider content fixtures to use only approved synthetic roots/slugs.",
+      "expected_result": "Every Task 2 spike has the required metadata; unavailable rows are PENDING; evidence retains only native-format labels, validation booleans/counts, approved synthetic slugs, and digests; real slugs/page names, answers, prompts, payloads, account/session IDs, tokens, real prose, and absolute protected paths are absent.",
+      "id": "OFF-129",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Preflight records sanitized commands, provider versions, output-shape labels, results, and unresolved rows using synthetic content only."
+    },
+    {
+      "command_or_inspection": "Closed procedure: (1) parse timestamps/status/evidence for PROC-028 and its nine prerequisites; (2) parse the first Task 3 production timestamp; (3) require every locally mandatory row PASS earlier than Task 3; (4) for each FAIL, require a later approved spec/plan replacement and repeated review before any affected production timestamp.",
+      "expected_result": "Every mandatory local row is PASS before Task 3; no FAIL precedes affected production without an approved corrected spec/plan and completed repeat review; missing chronology fails.",
+      "id": "OFF-130",
+      "phase": "offline",
+      "platform": "Local implementation platform",
+      "requirement": "Local provider flags/output and process primitive passed before affected production implementation; any failed assumption stopped the path for spec/plan correction and re-review."
+    },
+    {
+      "command_or_inspection": "Closed procedure: (1) run `cargo run -- --help`; (2) run `rg -n -e \"init wiki\" -e \"ingest\" -e \"update\" -e \"merge\" -e \"lint\" -e \"audit\" -e \"answer fil\" src Cargo.toml config.example.toml docs/llm-wikis.md`; (3) inspect every match as CLI/API implementation or explicit deferral.",
+      "expected_result": "Help exposes none of the excluded operations; source/Cargo/config contain no callable implementation; every docs match is an explicit out-of-scope statement.",
+      "id": "OFF-131",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Version 0.1.0 does not externalize initialization, ingestion, update, merge, lint, audit, answer filing, or any wiki skill other than query."
+    },
+    {
+      "command_or_inspection": "Closed procedure: (1) run `rg -n -e \"discover\" -e \"enumerate\" -e \"installed.*skill\" -e \"installed.*plugin\" src config.example.toml docs/llm-wikis.md`; (2) inspect config resolver/provider filesystem scans; (3) trace entrypoint selection from parsed config to prompt.",
+      "expected_result": "Every selected entrypoint/artifact originates in explicit trusted configuration; no scan enumerates installed skills/plugins; docs matches only describe deferral.",
+      "id": "OFF-132",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Version 0.1.0 does not automatically discover installed skills or plugins."
+    },
+    {
+      "command_or_inspection": "Closed procedure: (1) run `cargo metadata --no-deps --format-version 1`; (2) run `rg -F -n -e \"TcpListener\" -e \"HttpServer\" -e \"hyper\" -e \"axum\" -e \"warp\" -e \"route(\" -e \"listen(\" Cargo.toml src`; (3) run `cargo run -- --help`; (4) run `rg -F -n -e \"HTTP service\" -e \"out of scope\" docs/llm-wikis.md`.",
+      "expected_result": "Metadata exits 0 with one CLI binary and no HTTP dependency/target; fixed-string source scan exits 1 with empty stdout; help exits 0 with no service command; docs scan contains an explicit HTTP-service deferral.",
+      "id": "OFF-133",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Version 0.1.0 provides no HTTP service."
+    },
+    {
+      "command_or_inspection": "Closed procedure: (1) run `rg -n -e \"ssh\" -e \"remote_host\" -e \"remote execution\" -e \"rpc\" -e \"tonic\" Cargo.toml src config.example.toml docs/llm-wikis.md`; (2) run CLI help; (3) inspect every match.",
+      "expected_result": "Source/Cargo/config/help expose no remote host, SSH, RPC, or remote command path; docs matches only state deferral; provider processes execute locally.",
+      "id": "OFF-134",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Version 0.1.0 provides no remote-execution facility."
+    },
+    {
+      "command_or_inspection": "Closed procedure: (1) run `rg -n -e \"tenant\" -e \"multi-user\" -e \"user_id\" -e \"authorization\" -e \"rbac\" Cargo.toml src config.example.toml docs/llm-wikis.md`; (2) inspect public config/models and CLI help; (3) inspect every match.",
+      "expected_result": "No tenant/user identity, shared authorization, RBAC, or tenancy storage/API exists; docs matches only state local single-operator scope/deferral.",
+      "id": "OFF-135",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Version 0.1.0 provides no multi-user tenancy."
+    },
+    {
+      "command_or_inspection": "Closed procedure: (1) hash upstream skill/schema/page-format sources before and after implementation using the frozen implementation manifest; (2) run `rg -n -e \"## Citations\" -e \"raw/\" -e \"assets/\" agents/overrides/wiki-query/SKILL.md src docs/llm-wikis.md`; (3) inspect every format-producing code path; (4) compare overlay/deployed copies under OFF-124.",
+      "expected_result": "Upstream format-source hashes are unchanged; no code rewrites page/formal-footnote syntax; wrapper normalization affects only public page-provenance objects; docs explicitly preserve existing formats.",
+      "id": "OFF-136",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Version 0.1.0 does not change the existing wiki page format or formal citation format."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test config_contract off_137 -- --exact`. Fixture/assertion scope: Run strict-config cases for a valid profile, missing/mistyped contract, unknown fields, and cross-level load, entrypoint, skill_path, plugin_dir, or executable fields; inspect provider call count.",
+      "expected_result": "Valid profile parses; every missing required, mistyped, unknown, or cross-level field returns `CONFIG_INVALID` before provider startup.",
+      "id": "OFF-137",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Each query profile table has a closed schema: required `contract`, optional `claude` and `codex` subtables, and no load-mode/provider/executable fields at profile level."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test config_contract off_138 -- --exact`. Fixture/assertion scope: Run strict-config cases omitting or mistyping each required field and adding plugin_dir or other local-plugin/cross-mode fields; inspect provider call count.",
+      "expected_result": "Only the closed Claude project_skill shape parses; every missing, mistyped, unknown, or cross-mode field returns `CONFIG_INVALID` before provider startup.",
+      "id": "OFF-138",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "A Claude project_skill table has exactly required load=`project_skill`, entrypoint, and skill_path fields; local-plugin-only fields are inapplicable."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test config_contract off_139 -- --exact`. Fixture/assertion scope: Run strict-config cases omitting or mistyping each required field and adding project-root-relative or other cross-mode fields; inspect provider call count.",
+      "expected_result": "Only the closed Claude local_plugin shape parses; every missing, mistyped, unknown, or cross-mode field returns `CONFIG_INVALID` before provider startup.",
+      "id": "OFF-139",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "A Claude local_plugin table has exactly required load=`local_plugin`, entrypoint, plugin_dir, and skill_path fields; project-skill-only or unrelated fields are inapplicable."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test config_contract off_140 -- --exact`. Fixture/assertion scope: Run strict-config cases omitting or mistyping each required field and adding plugin_dir, local-plugin, installed-plugin, or other cross-mode fields; inspect provider call count.",
+      "expected_result": "Only the closed Codex project_skill shape parses; every missing, mistyped, unknown, or cross-mode field returns `CONFIG_INVALID` before provider startup.",
+      "id": "OFF-140",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "A Codex project_skill table has exactly required load=`project_skill`, entrypoint, and skill_path fields; plugin_dir, local_plugin, and installed-plugin fields are inapplicable."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test doctor off_141 -- --exact`. Fixture/assertion scope: Run static doctor with missing, malformed, mismatched-name, and exact-match `.claude-plugin/plugin.json` fixtures while counting provider starts.",
+      "expected_result": "Test exits 0 after asserting the first three fixtures return `ENTRYPOINT_INVALID` with zero paid invocations and exact-match fixture emits entrypoint check status pass before executable/auth checks.",
+      "id": "OFF-141",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Static doctor validates that Claude local-plugin manifest identity exists and exactly matches the plugin namespace in the configured entrypoint."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test probes off_142 -- --exact`. Fixture/assertion scope: Serialize and parse golden probe stores; remove or mistype each top-level/record field, add unknown fields, and test non-UTC or invalid timestamps; then run normal query with a paid-call counter.",
+      "expected_result": "Canonical store contains exactly schema_version and records; each record contains exactly wiki_id, canonical_project_root, canonical_content_root, agent, agent_executable, agent_version, profile, contract, load, entrypoint, skill_fingerprint, compatibility_fingerprint, and verified_at; verified_at is RFC 3339 UTC; malformed/unknown/missing/mistyped stores are unverified and query returns `ENTRYPOINT_UNVERIFIED` before provider startup.",
+      "id": "OFF-142",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Probe-store JSON uses a closed schema with schema_version 1, records array, every documented record field, and RFC 3339 UTC verified_at."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test config_contract off_143 -- --exact`. Fixture/assertion scope: Run cross-platform configuration, canonical-resolution, static-doctor, and fixture-query tests with Traditional Chinese and spaces in every listed path category for project skill and Claude local plugin.",
+      "expected_result": "Paths remain exact through canonicalization and structured invocation; valid contained fixtures succeed without mojibake, cwd fallback, shell interpretation, or false containment failure.",
+      "id": "OFF-143",
+      "phase": "offline",
+      "platform": "Windows, Linux/WSL, macOS",
+      "requirement": "Unicode and space-containing paths work across absolute `--config`, project/content roots, skill_path or plugin_dir, and absolute provider executable resolution/invocation."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test cli_contract off_144 -- --exact`. Fixture/assertion scope: Build the binary; create an unrelated temporary cwd containing a decoy project/config; invoke the compiled binary there with an absolute fixture config and fixture provider; parse stdout as one JSON result.",
+      "expected_result": "Exit is 0; result satisfies the normalized query schema with validated citation or valid no_relevant_material gap; decoy cwd is untouched/ignored and the answer is returned directly by the command.",
+      "id": "OFF-144",
+      "phase": "offline",
+      "platform": "Windows, Linux/WSL, macOS",
+      "requirement": "A compiled query launched from an unrelated temporary cwd returns a valid normalized result using only the explicit absolute config, without cwd discovery or manual copy-paste."
+    },
+    {
+      "command_or_inspection": "Closed procedure: (1) run `rg -F -n -e \"evidence only\" -e \"cannot be copied into production\" spikes/README.md`; (2) run `pwsh -NoProfile -Command '$m = cargo metadata --format-version 1 | ConvertFrom-Json; $packages = @($m.packages | Where-Object { $m.workspace_members -contains $_.id } | Sort-Object name,version | ForEach-Object { [ordered]@{ name = $_.name; version = $_.version; dependencies = @($_.dependencies | Sort-Object name,kind | ForEach-Object { [ordered]@{ name = $_.name; kind = if ($null -eq $_.kind) { \"normal\" } else { $_.kind }; optional = [bool]$_.optional } }) } }); [ordered]@{ schema_version = 1; packages = $packages } | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath \"docs/verification/evidence/llm-wikis-v0.1.0/OFF-145/off-145-dependencies.json\" -Encoding utf8NoBOM'`; raw metadata remains in memory and is never persisted; (3) parse that projection and require exactly top-level `schema_version` and `packages`, exactly `name`, `version`, and `dependencies` per package, and exactly `name`, `kind`, and `optional` per dependency; reject every other key, any absolute/UNC/drive-rooted path value, and any dependency named `llm-wikis-spikes`; (4) run `rg -n -e \"spikes/\" -e \"llm-wikis-spikes\" Cargo.toml Cargo.lock src tests`; (5) write sorted SHA-256 manifests for production and spike Rust files and compare exact hash intersections; (6) run `git diff --no-index --find-copies-harder --find-copies=50% --summary spikes/src src` and record its output/exit; (7) in Git mode, for every production `src/**/*.rs` compute slash-normalized repository-relative `$relative`, run `git log --follow --reverse --format='%H%x09%cI' -- $relative`, require at least one record, select its first record as the explicitly oldest commit/timestamp, and join the same relative file to its earlier OFF-146 RED-evidence reference; (8) in the approved no-Git mode, select the first chronological checkpoint SHA-256/timestamp for every production Rust file and join the same relative file to its earlier OFF-146 RED-evidence reference; (9) write `off-145-lineage.json` with exactly top-level `schema_version`, `mode`, and `records` and exactly `file`, `oldest_revision_kind`, `oldest_revision`, `oldest_recorded_at`, and `red_evidence_ref` per record, where mode/kind are `git`/`git_commit` with a 40-hex revision or `no_git`/`checkpoint_sha256` with a 64-hex revision, times are RFC 3339, file and evidence references are slash-normalized repository-relative values, and there is exactly one record per production Rust file; (10) reject raw Git history, raw metadata, absolute paths, duplicate/missing file records, a non-oldest revision, or a RED timestamp not earlier than its joined oldest timestamp.",
+      "expected_result": "README scan returns both declarations; the dependency projection has only the allowed fields, contains no absolute path or spike dependency, and raw metadata is absent; import scan has no production dependency/import match; production/spike exact-hash intersection is empty; copy-similarity report contains no `copy from spikes/`; structured lineage has exactly one sanitized relative record per production Rust file with a reproducible oldest revision/timestamp and earlier RED-evidence reference in either approved mode; every command/output and join artifact is preserved.",
+      "id": "OFF-145",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Spike code is objectively declared evidence-only and dependency/source-lineage isolated from production code."
+    },
+    {
+      "command_or_inspection": "Closed procedure: (1) for Tasks 3–13, read each execution checkpoint's failing-test command, exit status, timestamp, implementation-start timestamp, and implementation file hash/commit; (2) require failing-test timestamp earlier than the first production-file hash/commit for that task; (3) require the failing tests reside outside `spikes/`; (4) write the ordered comparison table to evidence.",
+      "expected_result": "Every production task has an exact non-spike test command with nonzero RED exit recorded before its first implementation change; missing, unordered, or prose-only chronology fails this row.",
+      "id": "OFF-146",
+      "phase": "offline",
+      "platform": "All",
+      "requirement": "Production implementation has timestamped RED-before-production evidence independent of spike code."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test process_supervisor proc_001 -- --exact`. Fixture/assertion scope: Run adversarial process tests and inspect ProcessRequest construction for both adapters.",
+      "expected_result": "Provider argv contains only fixed trusted arguments and resolved paths; question/prompt bytes appear only on stdin.",
+      "id": "PROC-001",
+      "phase": "process",
+      "platform": "All",
+      "requirement": "Provider invocation uses a structured argument vector and sends the complete prompt only through stdin, never through a shell command string."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test process_supervisor proc_002 -- --exact`. Fixture/assertion scope: Run platform process-helper tests that spawn a child and grandchild and inspect containment/cleanup.",
+      "expected_result": "Whole test tree is contained independently of the wrapper process.",
+      "id": "PROC-002",
+      "phase": "process",
+      "platform": "Windows, Linux/WSL, macOS",
+      "requirement": "Each provider starts in its own Unix process group or Windows Job Object or equivalently tested containment."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test process_supervisor proc_003 -- --exact`. Fixture/assertion scope: Run process-helper echo/EOF tests with Traditional Chinese, multiline data, and payload larger than one write buffer.",
+      "expected_result": "Helper receives byte-identical complete input and observes EOF.",
+      "id": "PROC-003",
+      "phase": "process",
+      "platform": "All",
+      "requirement": "Supervisor writes the complete stdin payload and closes stdin."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test process_supervisor proc_004 -- --exact`. Fixture/assertion scope: Run helper mode that fills both pipes beyond normal pipe capacity before exiting.",
+      "expected_result": "Command completes within deadline with both bounded streams captured and no deadlock.",
+      "id": "PROC-004",
+      "phase": "process",
+      "platform": "All",
+      "requirement": "Supervisor drains stdout and stderr concurrently without deadlock."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test process_supervisor proc_005 -- --exact`. Fixture/assertion scope: Run helper modes exceeding each cap by one byte while the other stream remains valid.",
+      "expected_result": "Process tree terminates; error is `OUTPUT_TOO_LARGE`; details name the correct stream and counts.",
+      "id": "PROC-005",
+      "phase": "process",
+      "platform": "All",
+      "requirement": "stdout and stderr limits are enforced independently while streaming and identify the offending stream."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test process_supervisor proc_006 -- --exact`. Fixture/assertion scope: Run helper delays at each lifecycle stage under a controlled monotonic clock.",
+      "expected_result": "Total operation respects one deadline and returns `TIMEOUT` without wall-clock regression errors.",
+      "id": "PROC-006",
+      "phase": "process",
+      "platform": "All",
+      "requirement": "One monotonic deadline spans spawn, stdin write, reads, wait, termination, and reap."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test process_supervisor proc_007 -- --exact`. Fixture/assertion scope: Run process-helper grandchild sentinel tests for every failure path and probe all emitted PIDs afterward.",
+      "expected_result": "Wrapper waits for termination; no child/grandchild remains alive; failure is not reported as success.",
+      "id": "PROC-007",
+      "phase": "process",
+      "platform": "Windows, Linux/WSL, macOS",
+      "requirement": "Timeout, overflow, cancellation, and parser-aborting failure kill and reap the entire process tree."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test process_supervisor proc_008 -- --exact`. Fixture/assertion scope: Run ProcessOutcome integration tests for success, nonzero, timeout, and overflow.",
+      "expected_result": "Every field is distinct and internally consistent; no stream is merged or read after return.",
+      "id": "PROC-008",
+      "phase": "process",
+      "platform": "All",
+      "requirement": "Supervisor joins both pipe readers before returning and preserves bounded stdout, stderr, exit status, elapsed time, and termination reason as separate fields."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test executable_resolution proc_009 -- --exact`. Fixture/assertion scope: Run resolution/invocation fixtures for `.exe`, `.cmd`, and `.bat` paths containing spaces and `%!^&` characters.",
+      "expected_result": "`.exe` is direct; batch shim preserves fixed command shape; question never appears in command-line text.",
+      "id": "PROC-009",
+      "phase": "process",
+      "platform": "Windows x64",
+      "requirement": "Direct executables start without a shell; only a trusted Windows `.cmd` or `.bat` shim uses the dedicated batch adapter with fixed argv and stdin question transport."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test process_supervisor proc_010 -- --exact`. Fixture/assertion scope: Run temp-artifact tests with unsafe/colliding temp roots and normal success/failure invocations.",
+      "expected_result": "Unsafe location fails before provider startup; safe artifacts are exclusive, permission-restricted where supported, held through startup, and removed after reap.",
+      "id": "PROC-010",
+      "phase": "process",
+      "platform": "Windows, Linux/WSL, macOS",
+      "requirement": "Generated empty MCP config, Codex schema, and batch helpers use a fresh canonical system temp directory outside all configured roots with exclusive creation, guarded ownership, and cleanup after child reap."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test claude_adapter proc_011 -- --exact`. Fixture/assertion scope: Inspect captured Claude argv from adapter golden tests.",
+      "expected_result": "`--json-schema` value is inline JSON and no schema temp path is supplied.",
+      "id": "PROC-011",
+      "phase": "process",
+      "platform": "All",
+      "requirement": "Claude JSON schema is passed as an implementation-generated inline string, not a path."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test claude_adapter --test codex_adapter proc_012 -- --exact`. Fixture/assertion scope: Inspect fake-runner call vectors and preflight command evidence.",
+      "expected_result": "Exact non-billable status commands run; no logout or model invocation is used for auth readiness.",
+      "id": "PROC-012",
+      "phase": "process",
+      "platform": "All",
+      "requirement": "Authentication readiness uses `claude auth status --json` and `codex login status`, never a paid request or logout."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test claude_adapter --test codex_adapter proc_013 -- --exact`. Fixture/assertion scope: Run table-driven auth parser/process tests for both providers.",
+      "expected_result": "Both test targets exit 0 after asserting nonzero/logged-out is `AUTH_REQUIRED` exit 3, malformed exit-zero is `INVALID_NATIVE_OUTPUT` exit 6, timeout is exit 5, and either stream overflow is `OUTPUT_TOO_LARGE` exit 5.",
+      "id": "PROC-013",
+      "phase": "process",
+      "platform": "All",
+      "requirement": "Auth nonzero or explicit logged-out state maps to `AUTH_REQUIRED`; exit-zero malformed status maps to `INVALID_NATIVE_OUTPUT`; timeout/overflow retain their classes."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test claude_adapter --test codex_adapter proc_014 -- --exact`. Fixture/assertion scope: Invoke both adapters with valid auth fixtures and a paid child that exits nonzero.",
+      "expected_result": "Result is `NONZERO_EXIT`, exit 4, with bounded sanitized diagnostics.",
+      "id": "PROC-014",
+      "phase": "process",
+      "platform": "All",
+      "requirement": "Ordinary paid provider nonzero exit maps to `NONZERO_EXIT`, distinct from auth-status handling."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test claude_adapter proc_015 -- --exact`. Fixture/assertion scope: Compare captured Claude ProcessRequest against the approved preflight fixture and specification Section 10.2.",
+      "expected_result": "Cwd is canonical project_root; required add-dir, print, input, session, permission, tools, MCP, output, and schema options match the approved versioned vector.",
+      "id": "PROC-015",
+      "phase": "process",
+      "platform": "All",
+      "requirement": "Claude runs with cwd project_root and the exact minimum non-interactive read-only argument vector from the current approved capability fixture."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test claude_adapter proc_016 -- --exact`. Fixture/assertion scope: Diff captured Claude project-skill and local-plugin argv fixtures.",
+      "expected_result": "Only the required plugin-dir pair differs for load mode; entrypoint remains on stdin.",
+      "id": "PROC-016",
+      "phase": "process",
+      "platform": "All",
+      "requirement": "Claude local_plugin adds only the configured `--plugin-dir` load argument while keeping the same safety vector."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test claude_adapter proc_017 -- --exact`. Fixture/assertion scope: Inspect captured argv, generated MCP config, and tool allowlist across every Claude mode.",
+      "expected_result": "Only Read, Grep, and Glob are exposed; empty strict MCP and no-session behavior are enforced.",
+      "id": "PROC-017",
+      "phase": "process",
+      "platform": "All",
+      "requirement": "Claude never uses dangerously-skip-permissions and never exposes Bash, Edit, Write, Web, MCP, subagents, or session persistence."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test claude_adapter proc_018 -- --exact`. Fixture/assertion scope: Run Claude parser fixtures for valid structured output, fallback/error subtype, malformed JSON, nonzero, long stderr, timeout, and overflow.",
+      "expected_result": "Test exits 0 after asserting valid structured output yields claude-json; `is_error`, non-success subtype, and malformed JSON yield `INVALID_NATIVE_OUTPUT`; nonzero yields `NONZERO_EXIT`; timeout yields `TIMEOUT`; cap crossing yields `OUTPUT_TOO_LARGE`; diagnostics stay within cap.",
+      "id": "PROC-018",
+      "phase": "process",
+      "platform": "All",
+      "requirement": "Claude parser accepts one native JSON document, rejects `is_error` or non-success subtype, prefers structured_output, validates the result, and caps stderr diagnostics."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test claude_adapter proc_019 -- --exact`. Fixture/assertion scope: Execute fixture static doctor and query and compare warning golden text.",
+      "expected_result": "Code/message are exact and explain project-root read reach plus OS sandbox/container mitigation.",
+      "id": "PROC-019",
+      "phase": "process",
+      "platform": "All",
+      "requirement": "Every Claude static doctor and query reports exact `CLAUDE_READ_SCOPE_BROAD` warning."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test codex_adapter proc_020 -- --exact`. Fixture/assertion scope: Compare captured Codex ProcessRequest with the approved preflight fixture and specification Section 10.3.",
+      "expected_result": "Argument order and values are exact; no writable add-dir or user-config hardening dependency appears.",
+      "id": "PROC-020",
+      "phase": "process",
+      "platform": "All",
+      "requirement": "Codex uses the approved structured vector with top-level `--ask-for-approval never` before `exec`, project cwd, read-only sandbox, ephemeral mode, ignored user config, JSONL, schema file, stdin marker, and no `--add-dir`."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test codex_adapter proc_021 -- --exact`. Fixture/assertion scope: Run Codex JSONL fixtures for valid multiple messages, malformed line, error event, failed turn, no final message, and schema violation.",
+      "expected_result": "Test exits 0 after asserting valid stream selects last completed message and codex-jsonl; malformed/error/failed-turn yields `INVALID_NATIVE_OUTPUT`; missing completed message yields `NO_FINAL_MESSAGE`; final schema violation yields `CONTRACT_VIOLATION`.",
+      "id": "PROC-021",
+      "phase": "process",
+      "platform": "All",
+      "requirement": "Codex parser parses every non-empty stdout line as JSON, rejects error/failed-turn events, selects the last completed agent message, and validates it against the contract."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test codex_adapter proc_022 -- --exact`. Fixture/assertion scope: Run oversized diagnostic fixtures and inspect docs/warnings/adapter policy.",
+      "expected_result": "Output remains bounded and exact `CODEX_READ_SCOPE_BROAD` warning recommends an OS sandbox/container, not a user permission profile.",
+      "id": "PROC-022",
+      "phase": "process",
+      "platform": "All",
+      "requirement": "Codex caps event diagnostics/stderr and treats read-only sandbox as write prevention rather than a strict read allowlist."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test process_supervisor proc_023 -- --exact`. Fixture/assertion scope: Run provider-adapter integration tests with the exact plan Task 2 Step 4 byte fixture, a sentinel executable, and captured argv/stdin/process tree.",
+      "expected_result": "Stdin recovers every byte and line break exactly, including literal ASCII pipe 0x7C and exclamation 0x21; fixed argv is identical and contains no question byte substring; no sentinel side-effect process or file appears.",
+      "id": "PROC-023",
+      "phase": "process",
+      "platform": "Windows, Linux/WSL, macOS",
+      "requirement": "The exact three-line adversarial UTF-8 fixture is `繁體中文`, `--leading-dash`, and ``\"quotes\" `backticks` $() & | < > ^ % !``; it cannot alter argv or launch extra processes."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test executable_resolution proc_024 -- --exact`. Fixture/assertion scope: Run isolated PATH/PATHEXT resolution and invocation fixtures on each platform.",
+      "expected_result": "Canonical expected executable is selected and invoked safely; no path text is evaluated as shell syntax.",
+      "id": "PROC-024",
+      "phase": "process",
+      "platform": "Windows, Linux/WSL, macOS",
+      "requirement": "Executable resolution supports trusted command names and absolute paths, including spaces, Windows PATHEXT shims, and representative shell metacharacters without command-shape changes."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test claude_adapter --test codex_adapter proc_025 -- --exact`. Fixture/assertion scope: Inspect approved Phase 0 capability fixture, provider help evidence, and any compatibility changes.",
+      "expected_result": "Minimum invocation capability and all safety invariants remain; incompatible provider versions fail closed pending spec/plan review.",
+      "id": "PROC-025",
+      "phase": "process",
+      "platform": "All",
+      "requirement": "Provider safety-vector incompatibility cannot be fixed by a permission mode that re-enables writes, shell, web, MCP, subagents, sessions, or escalation."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test process_supervisor proc_026 -- --exact`. Fixture/assertion scope: Inspect Cargo dependencies and process implementation; run all process tests.",
+      "expected_result": "No async application runtime is required and concurrency/lifecycle properties pass.",
+      "id": "PROC-026",
+      "phase": "process",
+      "platform": "All",
+      "requirement": "The product remains synchronous Rust while bounded concurrent pipe readers and platform supervision provide lifecycle control without an async application runtime."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test process_supervisor proc_027 -- --exact`. Fixture/assertion scope: Use an injectable termination primitive to force kill/reap confirmation failure.",
+      "expected_result": "Error is `TERMINATION_FAILED`, exit 5, and no provider answer is returned.",
+      "id": "PROC-027",
+      "phase": "process",
+      "platform": "Windows, Linux/WSL, macOS",
+      "requirement": "A failed process-tree termination or reap returns `TERMINATION_FAILED` rather than masking the failure or returning provider content."
+    },
+    {
+      "command_or_inspection": "Closed procedure: (1) parse this checklist; (2) require PASS with non-empty evidence for PROC-029, PROC-030, PROC-031, PROC-032, PROC-033, PROC-034, PROC-035, PROC-036, and PROC-037; (3) inspect PROC-036 evidence for configured deadline/sleep, exact `TIMEOUT` and termination reason, bounded elapsed time, and dead-PID probes; (4) fail on any absent, PENDING, or FAIL prerequisite/artifact; (5) compare latest prerequisite timestamp with first Task 3 production timestamp.",
+      "expected_result": "PASS only when all nine prerequisites passed before Task 3 and PROC-036 proves the exact 500 ms deadline, 5000 ms child delay, `TIMEOUT`, `deadline_exceeded`, 500–2000 ms elapsed bound, and zero live child/grandchild PIDs; any omission keeps the gate PENDING or FAIL.",
+      "id": "PROC-028",
+      "phase": "process",
+      "platform": "Local implementation platform",
+      "requirement": "The mandatory local Phase 0 capability gate is a mechanical roll-up over the independently executable provider-discovery, capability-surface, stdin, resolution, directory, pipe, deadline/tree, and mutation spike rows."
+    },
+    {
+      "command_or_inspection": "Run `cargo run --manifest-path spikes/Cargo.toml -- provider-fixture-query`. Inspect the Claude-labeled result, timestamp, fixture roots, overlay-dependency scan, resolvable synthetic citation, and before/after digest fields.",
+      "expected_result": "Command exits 0; Claude record predates production; roots are distinct/contained; native-format label is claude-json; contract validates with approved synthetic citation; digests match; overlay dependency count is zero.",
+      "id": "PROC-029",
+      "phase": "process",
+      "platform": "Local implementation platform with Claude",
+      "requirement": "Before production, a disposable Claude fixture proves project-skill discovery using distinct temporary project_root and contained content_root without importing or modifying the future production overlay."
+    },
+    {
+      "command_or_inspection": "Run `cargo run --manifest-path spikes/Cargo.toml -- provider-fixture-query`. Inspect the Codex-labeled result, timestamp, fixture roots, overlay-dependency scan, resolvable synthetic citation, and before/after digest fields.",
+      "expected_result": "Command exits 0; Codex record predates production; roots are distinct/contained; native-format label is codex-jsonl; contract validates with approved synthetic citation; digests match; overlay dependency count is zero.",
+      "id": "PROC-030",
+      "phase": "process",
+      "platform": "Local implementation platform with Codex",
+      "requirement": "Before production, a disposable Codex fixture proves project-skill discovery using distinct temporary project_root and contained content_root without importing or modifying the future production overlay."
+    },
+    {
+      "command_or_inspection": "Closed procedure: (1) run `claude --version`, `claude --help`, `claude auth status --json`, `codex --version`, `codex --help`, `codex exec --help`, and `codex login status`; (2) record exact command, exit, canonical executable, version, accepted required flags, redacted auth classification, and excluded capabilities; (3) compare against spec Sections 10.2–10.3.",
+      "expected_result": "Every command has timestamped sanitized output; both required vectors are accepted; auth is classified deterministically; Write, Edit, shell, web, MCP, subagents, sessions, and escalation remain excluded; any mismatch is FAIL.",
+      "id": "PROC-031",
+      "phase": "process",
+      "platform": "Local implementation platform",
+      "requirement": "Before production, installed Claude and Codex executable/version/help/auth surfaces and minimum safe capability vectors are recorded and pass locally."
+    },
+    {
+      "command_or_inspection": "Run `cargo run --manifest-path spikes/Cargo.toml -- stdin-boundary` with the exact three lines from PROC-023 and save captured stdin/argv hashes.",
+      "expected_result": "Exit is 0; recovered stdin hash equals input hash byte-for-byte; captured argv contains no complete question line or question byte sequence.",
+      "id": "PROC-032",
+      "phase": "process",
+      "platform": "Local implementation platform",
+      "requirement": "Before production, the exact adversarial stdin fixture round-trips without question bytes in argv."
+    },
+    {
+      "command_or_inspection": "Run `cargo run --manifest-path spikes/Cargo.toml -- windows-resolution`; record native `.exe`, `.cmd` or `.bat`, spaced-path, and `%!^&` fixture cases separately.",
+      "expected_result": "Exit is 0; every fixture reports the expected Native or BatchShim class and exact fixed argv; no shell expansion occurs.",
+      "id": "PROC-033",
+      "phase": "process",
+      "platform": "Windows local implementation platform",
+      "requirement": "Before production on Windows, native and batch-shim executable resolution preserves exact fixed argv through paths containing spaces and metacharacters."
+    },
+    {
+      "command_or_inspection": "Run `cargo run --manifest-path spikes/Cargo.toml -- platform-dirs` from two unrelated cwd values using fixed injected APPDATA, XDG_CONFIG_HOME, HOME, and macOS-home fixtures.",
+      "expected_result": "Exit is 0; both cwd runs return identical exact Windows, Linux/XDG-fallback, and macOS config/cache paths from spec Sections 5.2 and 15.1.",
+      "id": "PROC-034",
+      "phase": "process",
+      "platform": "Local implementation platform",
+      "requirement": "Before production, all six platform config/cache directory resolutions are exact and cwd-independent."
+    },
+    {
+      "command_or_inspection": "Run `cargo run --manifest-path spikes/Cargo.toml -- bounded-pipes` for dual-pipe pressure, stdout-limit-plus-one, and stderr-limit-plus-one fixture modes.",
+      "expected_result": "Exit is 0 for the spike harness; dual pressure completes without deadlock; overflow cases report exact offending stream, limit, observed bytes, and terminated tree.",
+      "id": "PROC-035",
+      "phase": "process",
+      "platform": "Local implementation platform",
+      "requirement": "Before production, concurrent bounded output proves no deadlock and independent stdout/stderr overflow classification."
+    },
+    {
+      "command_or_inspection": "Run `cargo run --manifest-path spikes/Cargo.toml -- process-tree --timeout-ms 500 --child-sleep-ms 5000 --max-elapsed-ms 2000`. Read the emitted mode/result/elapsed/child-PID/grandchild-PID records and probe each PID after every mode.",
+      "expected_result": "Harness exits 0; success records `termination_reason=exited`; timeout records `code=TIMEOUT`, `termination_reason=deadline_exceeded`, and elapsed_ms from 500 through 2000; forced overflow records `code=OUTPUT_TOO_LARGE` with its offending stream; no recorded child or grandchild PID remains alive after any mode.",
+      "id": "PROC-036",
+      "phase": "process",
+      "platform": "Local implementation platform",
+      "requirement": "Before production, success, known-deadline timeout, and forced-overflow process trees are exactly classified, bounded, terminated, and reaped."
+    },
+    {
+      "command_or_inspection": "Run `cargo run --manifest-path spikes/Cargo.toml -- mutation-hash`; save before/after length, timestamp, SHA-256, and changed relative path.",
+      "expected_result": "Exit is 0; length and timestamp are equal, SHA-256 differs, and the exact rewritten relative path is reported.",
+      "id": "PROC-037",
+      "phase": "process",
+      "platform": "Local implementation platform",
+      "requirement": "Before production, full-content hashing detects a same-size rewrite with restored timestamp."
+    },
+    {
+      "command_or_inspection": "Closed procedure on `windows-2025`: (1) run `cargo build --release --target x86_64-pc-windows-msvc`; (2) copy the output to `llm-wikis-windows-amd64.exe`; (3) run `.\\llm-wikis-windows-amd64.exe --version`; (4) configure the native process helper and run `cargo test --test cli_contract --test process_supervisor`.",
+      "expected_result": "All commands exit 0; PE architecture is x86-64; filename is exact; version stdout is exactly `llm-wikis 0.1.0`; CLI/process suites report zero failures.",
+      "id": "NAT-001",
+      "phase": "native-binary",
+      "platform": "Windows x64",
+      "requirement": "The Windows release executable is native x86_64 MSVC, named `llm-wikis-windows-amd64.exe`, and passes `--version` plus offline CLI/process tests on Windows x64."
+    },
+    {
+      "command_or_inspection": "Closed procedure on `ubuntu-24.04`: (1) run `cargo build --release --target x86_64-unknown-linux-musl`; (2) copy output to `llm-wikis-linux-amd64`; (3) run `file llm-wikis-linux-amd64` and `ldd llm-wikis-linux-amd64`; (4) run `./llm-wikis-linux-amd64 --version`; (5) configure helper and run `cargo test --test cli_contract --test process_supervisor`.",
+      "expected_result": "All build/version/tests exit 0; file reports x86-64; linkage is static musl and ldd reports not dynamic; exact version line appears; suites report zero failures.",
+      "id": "NAT-002",
+      "phase": "native-binary",
+      "platform": "Linux/WSL x64",
+      "requirement": "The Linux/WSL release executable is static-musl x86_64, named `llm-wikis-linux-amd64`, and passes `--version` plus offline CLI/process tests on Ubuntu x64."
+    },
+    {
+      "command_or_inspection": "Closed procedure on ARM64 `macos-15`: (1) run `cargo build --release --target aarch64-apple-darwin`; (2) copy output to `llm-wikis-darwin-arm64`; (3) run `file llm-wikis-darwin-arm64`; (4) run `./llm-wikis-darwin-arm64 --version`; (5) configure helper and run `cargo test --test cli_contract --test process_supervisor`.",
+      "expected_result": "All commands exit 0; Mach-O architecture is arm64; filename/version are exact; suites report zero failures.",
+      "id": "NAT-003",
+      "phase": "native-binary",
+      "platform": "macOS Apple Silicon",
+      "requirement": "The macOS release executable is native Apple Silicon, named `llm-wikis-darwin-arm64`, and passes `--version` plus offline CLI/process tests on macOS ARM64."
+    },
+    {
+      "command_or_inspection": "Closed procedure on each native runner: (1) run `cargo build --manifest-path tests/fixtures/process-helper/Cargo.toml`; (2) set `LLM_WIKIS_PROCESS_HELPER` to the resolved native helper; (3) run `cargo test --test process_supervisor nat_004 -- --exact`; (4) probe every child/grandchild PID emitted by the test.",
+      "expected_result": "Each platform command exits 0; helper variable is non-empty; test is not skipped; no emitted PID remains alive.",
+      "id": "NAT-004",
+      "phase": "native-binary",
+      "platform": "Windows x64, Linux/WSL x64, macOS Apple Silicon",
+      "requirement": "Native process-tree termination and reap pass on Windows, Linux, and macOS using the separately built helper rather than a skipped/mock-only test."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test config_contract nat_005 -- --exact` and `cargo test --test executable_resolution nat_005 -- --exact` on each native matrix runner.",
+      "expected_result": "Both commands exit 0 on all three runners and report exact platform path and executable-class assertions with zero skipped cases.",
+      "id": "NAT-005",
+      "phase": "native-binary",
+      "platform": "Windows x64, Linux/WSL x64, macOS Apple Silicon",
+      "requirement": "Native default config/cache directories and executable resolution work on all supported platforms, including Windows `.exe` and `.cmd` and macOS zsh environment."
+    },
+    {
+      "command_or_inspection": "Closed procedure: (1) run `rg -n -e \"target:\" -e \"runs-on:\" .github/workflows`; (2) list staged/Release asset names; (3) run installer unsupported-architecture cases; (4) run `rg -n -e \"Intel\" -e \"Linux ARM\" -e \"Apple Silicon\" docs/llm-wikis.md`.",
+      "expected_result": "Workflow/assets contain only Windows x64, Linux x64, and Darwin arm64; Intel macOS/Linux ARM installer cases fail nonzero; docs claim only Apple Silicon macOS.",
+      "id": "NAT-006",
+      "phase": "native-binary",
+      "platform": "Release metadata and docs",
+      "requirement": "Intel macOS and Linux ARM are not published or claimed as supported in version 0.1.0."
+    },
+    {
+      "command_or_inspection": "Run `pwsh -NoProfile -File tests/installers/verify-install-ps1.ps1` latest and pinned fake-release cases.",
+      "expected_result": "Correct latest or pinned Windows asset URL/version is selected.",
+      "id": "INST-001",
+      "phase": "installer",
+      "platform": "Windows x64",
+      "requirement": "PowerShell installer downloads latest by default and honors an explicit `LLM_WIKIS_VERSION`."
+    },
+    {
+      "command_or_inspection": "Run `pwsh -NoProfile -File tests/installers/verify-install-ps1.ps1 -Case INST-002`.",
+      "expected_result": "Command exits 0 after asserting success installs the exact hashed/smoke-tested binary and wrong architecture, checksum mismatch, and smoke failure each exit nonzero with prior destination unchanged.",
+      "id": "INST-002",
+      "phase": "installer",
+      "platform": "Windows x64",
+      "requirement": "PowerShell installer supports Windows x64 only, verifies raw `.exe` against SHA256SUMS, runs `--version`, and installs to `%LOCALAPPDATA%\\llm-wikis\\bin\\llm-wikis.exe`."
+    },
+    {
+      "command_or_inspection": "Run `pwsh -NoProfile -File tests/installers/verify-install-ps1.ps1 -Case INST-003`.",
+      "expected_result": "Command exits 0 and asserts two installs leave exactly one normalized `%LOCALAPPDATA%\\llm-wikis\\bin` user-PATH entry with unrelated entries byte-preserved.",
+      "id": "INST-003",
+      "phase": "installer",
+      "platform": "Windows x64",
+      "requirement": "PowerShell installer updates user PATH only when the exact install directory is absent and never duplicates it."
+    },
+    {
+      "command_or_inspection": "Run `pwsh -NoProfile -File tests/installers/verify-install-ps1.ps1 -Case INST-004`.",
+      "expected_result": "Command exits 0 after success/failure cleanup, upgrade, downgrade, damaged-binary repair, and pre-smoke failure cases; no temp directory remains and destination changes only after checksum plus version smoke succeed.",
+      "id": "INST-004",
+      "phase": "installer",
+      "platform": "Windows x64",
+      "requirement": "PowerShell installer uses strict errors, unique temporary storage, cleans it on success/failure, and safely upgrades, downgrades, or repairs an existing binary."
+    },
+    {
+      "command_or_inspection": "Run `sh tests/installers/verify-install-sh.sh` latest and pinned fake-release cases on Ubuntu and macOS.",
+      "expected_result": "Correct platform asset and version endpoint are selected.",
+      "id": "INST-005",
+      "phase": "installer",
+      "platform": "Linux/WSL x64, macOS Apple Silicon",
+      "requirement": "POSIX installer downloads latest by default and honors explicit `LLM_WIKIS_VERSION`."
+    },
+    {
+      "command_or_inspection": "Run `sh tests/installers/verify-install-sh.sh INST-006`.",
+      "expected_result": "Command exits 0 after asserting Linux x86-64 maps to `llm-wikis-linux-amd64`, Darwin arm64 maps to `llm-wikis-darwin-arm64`, and Darwin x86-64 plus Linux arm64 each fail before network/install.",
+      "id": "INST-006",
+      "phase": "installer",
+      "platform": "Linux/WSL, macOS",
+      "requirement": "POSIX installer accepts only Linux x86-64 and macOS ARM64 and gives explicit errors for Intel macOS and unsupported Linux architectures."
+    },
+    {
+      "command_or_inspection": "Run `sh tests/installers/verify-install-sh.sh INST-007`.",
+      "expected_result": "Command exits 0 after asserting sha256sum and shasum success cases and no-tool, missing-entry, duplicate-entry, malformed-manifest, and mismatch cases each fail before destination replacement.",
+      "id": "INST-007",
+      "phase": "installer",
+      "platform": "Linux/WSL x64, macOS Apple Silicon",
+      "requirement": "POSIX installer downloads raw binary plus SHA256SUMS, verifies with sha256sum or shasum, and fails closed if neither tool exists or checksum mismatches."
+    },
+    {
+      "command_or_inspection": "Run `sh tests/installers/verify-install-sh.sh INST-008`.",
+      "expected_result": "Command exits 0; success installs exact verified binary at isolated `~/.local/bin/llm-wikis`; smoke nonzero/wrong-version cases leave prior destination bytes unchanged.",
+      "id": "INST-008",
+      "phase": "installer",
+      "platform": "Linux/WSL x64, macOS Apple Silicon",
+      "requirement": "POSIX installer runs downloaded `--version` before installing to `~/.local/bin/llm-wikis`."
+    },
+    {
+      "command_or_inspection": "Run `sh tests/installers/verify-install-sh.sh INST-009`.",
+      "expected_result": "Command exits 0 after two zsh installs; `.zprofile` has exactly one managed PATH line and unrelated bytes are preserved.",
+      "id": "INST-009",
+      "phase": "installer",
+      "platform": "macOS Apple Silicon",
+      "requirement": "On macOS zsh, installer idempotently adds `~/.local/bin` to `~/.zprofile` only when needed."
+    },
+    {
+      "command_or_inspection": "Run `sh tests/installers/verify-install-sh.sh INST-010`.",
+      "expected_result": "Command exits 0 for bash and sh cases after two installs each; `.profile` has exactly one managed PATH line and unrelated bytes are preserved.",
+      "id": "INST-010",
+      "phase": "installer",
+      "platform": "Linux/WSL x64",
+      "requirement": "On Linux bash or sh, installer idempotently adds `~/.local/bin` to `~/.profile` only when needed."
+    },
+    {
+      "command_or_inspection": "Run `sh tests/installers/verify-install-sh.sh INST-011`.",
+      "expected_result": "Command exits 0 after asserting installation succeeds, stdout contains the exact manual PATH instruction, and every preexisting profile hash remains unchanged.",
+      "id": "INST-011",
+      "phase": "installer",
+      "platform": "Linux/WSL x64, macOS Apple Silicon",
+      "requirement": "For unsupported shells the POSIX installer prints manual PATH instructions and does not modify unknown profiles."
+    },
+    {
+      "command_or_inspection": "Run `sh tests/installers/verify-install-sh.sh INST-012`.",
+      "expected_result": "Command exits 0 after static primitive checks and success/download/checksum/smoke/install failure cleanup plus upgrade/downgrade/repair cases; destination changes only after checksum and smoke.",
+      "id": "INST-012",
+      "phase": "installer",
+      "platform": "Linux/WSL x64, macOS Apple Silicon",
+      "requirement": "POSIX installer uses `set -eu`, secure unique temp directory, quoted cleanup trap, `curl -fsSL`, cleanup on all paths, and safe repeated upgrade/downgrade/repair."
+    },
+    {
+      "command_or_inspection": "Closed procedure: (1) run `pwsh -NoProfile -File tests/installers/verify-install-ps1.ps1 -Case INST-013`; (2) run `sh tests/installers/verify-install-sh.sh INST-013`; (3) inspect captured requests with public network blocked.",
+      "expected_result": "Both commands exit 0; guarded alternate origin reaches only local fake server; unguarded override fails or uses fixed GitHub origin; captured offline-suite requests contain no public destination.",
+      "id": "INST-013",
+      "phase": "installer",
+      "platform": "Windows, Linux/WSL, macOS",
+      "requirement": "Offline installer tests use a local fake Release origin only under explicit `LLM_WIKIS_INSTALLER_TEST=1`; production ignores or rejects alternate origins and uses the fixed GitHub repository."
+    },
+    {
+      "command_or_inspection": "Closed procedure: (1) in one isolated environment run `pwsh -NoProfile -File tests/installers/verify-install-ps1.ps1` twice on Windows; (2) run `sh tests/installers/verify-install-sh.sh` twice on Ubuntu and twice on macOS; (3) hash destinations and profiles after each run; (4) compare managed-entry counts and unrelated bytes.",
+      "expected_result": "All six platform-local runs exit 0; second-run binary is valid; managed PATH/profile entry count is exactly one; unrelated profile/PATH content is unchanged.",
+      "id": "INST-014",
+      "phase": "installer",
+      "platform": "Windows x64, Linux/WSL x64, macOS Apple Silicon",
+      "requirement": "Both installer suites pass twice without PATH/profile duplication."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test doctor live_001 -- --ignored --exact`. Fixture/assertion scope: native Windows test creates an isolated temp config from `tests/fixtures/claude/synthetic`, invokes live doctor/query, compares digests, and writes only LIVE-010-approved evidence.",
+      "expected_result": "Both exits are 0; native format label is claude-json; `knowledge_status` is `grounded`; citation count is at least 1 and any retained slug is only `synthetic-page`; zero-citation or no_relevant_material output fails; digests match; forbidden fields are absent.",
+      "id": "LIVE-001",
+      "phase": "live-provider",
+      "platform": "Windows x64",
+      "requirement": "Current Claude project skill works through live doctor then normal query on Windows with explicit synthetic content_root, valid grounded contract/citations, and no mutation."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test doctor live_002 -- --ignored --exact`. Fixture/assertion scope: native Windows test creates an isolated temp config from `tests/fixtures/codex/synthetic`, invokes live doctor/query, compares digests, and writes only LIVE-010-approved evidence.",
+      "expected_result": "Both exits are 0; native format label is codex-jsonl; `knowledge_status` is `grounded`; citation count is at least 1 with count or `synthetic-page` retained; zero-citation or no_relevant_material output fails; `CODEX_READ_SCOPE_BROAD` is recorded; digests match; forbidden fields are absent.",
+      "id": "LIVE-002",
+      "phase": "live-provider",
+      "platform": "Windows x64",
+      "requirement": "Current Codex project skill works through live doctor then normal query on Windows with synthetic content, grounded JSONL normalization/citations, and no mutation."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test doctor live_003 -- --ignored --exact`. Fixture/assertion scope: native Linux/WSL test uses `tests/fixtures/claude/synthetic`, isolated absolute temp paths, digest comparison, and LIVE-010 sanitizer.",
+      "expected_result": "Both exits are 0; native format label is claude-json; `knowledge_status` is `grounded`; citation count is at least 1 with count or `synthetic-page` retained; zero-citation or no_relevant_material output fails; paths resolve portably; digests match; forbidden fields are absent.",
+      "id": "LIVE-003",
+      "phase": "live-provider",
+      "platform": "Linux/WSL x64",
+      "requirement": "Current Claude project skill works through live doctor then normal query on Linux/WSL using an approved synthetic content root and portable paths."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test doctor live_004 -- --ignored --exact`. Fixture/assertion scope: native Linux/WSL test uses `tests/fixtures/codex/synthetic`, isolated absolute temp paths, digest comparison, and LIVE-010 sanitizer.",
+      "expected_result": "Both exits are 0; native format label is codex-jsonl; `knowledge_status` is `grounded`; citation count is at least 1 with count or `synthetic-page` retained; zero-citation or no_relevant_material output fails; read-scope warning passes; digests match; forbidden fields are absent.",
+      "id": "LIVE-004",
+      "phase": "live-provider",
+      "platform": "Linux/WSL x64",
+      "requirement": "Current Codex project skill works through live doctor then normal query on Linux/WSL using an approved synthetic content root with sandbox behavior recorded."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test doctor live_005 -- --ignored --exact`. Fixture/assertion scope: native ARM macOS test launches `llm-wikis-darwin-arm64` from zsh against `tests/fixtures/claude/synthetic`, compares digests, and sanitizes evidence.",
+      "expected_result": "Both exits are 0; binary is arm64; native format label is claude-json; `knowledge_status` is `grounded`; citation count is at least 1 with count or `synthetic-page` retained; zero-citation or no_relevant_material output fails; digests match; forbidden fields are absent.",
+      "id": "LIVE-005",
+      "phase": "live-provider",
+      "platform": "macOS Apple Silicon",
+      "requirement": "Current Claude project skill works through the native ARM binary on macOS Apple Silicon with zsh and an approved synthetic content root."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test doctor live_006 -- --ignored --exact`. Fixture/assertion scope: native ARM macOS test launches `llm-wikis-darwin-arm64` from zsh against `tests/fixtures/codex/synthetic`, compares digests, and sanitizes evidence.",
+      "expected_result": "Both exits are 0; binary is arm64; native format label is codex-jsonl; `knowledge_status` is `grounded`; citation count is at least 1 with count or `synthetic-page` retained; zero-citation or no_relevant_material output fails; read-scope warning passes; digests match; forbidden fields are absent.",
+      "id": "LIVE-006",
+      "phase": "live-provider",
+      "platform": "macOS Apple Silicon",
+      "requirement": "Current Codex project skill works through the native ARM binary on macOS Apple Silicon with an approved synthetic content root and sandbox behavior recorded."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test doctor live_007 -- --ignored --exact`. Fixture/assertion scope: test builds a temp namespaced plugin from `tests/fixtures/claude/synthetic`, runs static/live/query stages, compares digests, and sanitizes evidence.",
+      "expected_result": "All exits are 0; configured namespace is exact; manifest checks pass; `knowledge_status` is `grounded`; citation count is at least 1 with count or `synthetic-page` retained; zero-citation or no_relevant_material output fails; digests match; forbidden fields are absent.",
+      "id": "LIVE-007",
+      "phase": "live-provider",
+      "platform": "Windows x64 or Linux/WSL x64",
+      "requirement": "A differently named Claude local-plugin skill resolves its configured namespace against an approved synthetic content root and passes grounded live verification without forbidden plugin components."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test doctor live_008 -- --ignored --exact`. Fixture/assertion scope: test builds `/synthetic-query` from `tests/fixtures/claude/synthetic`, runs live doctor/query, compares digests, and sanitizes evidence.",
+      "expected_result": "Both exits are 0; `/synthetic-query` is exact; `knowledge_status` is `grounded`; citation count is at least 1 with count or `synthetic-page` retained; zero-citation or no_relevant_material output fails; digests match; forbidden fields are absent.",
+      "id": "LIVE-008",
+      "phase": "live-provider",
+      "platform": "Windows x64 or Linux/WSL x64",
+      "requirement": "A differently named Claude project skill works by configuration only against an approved synthetic content root with grounded citations."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test doctor live_009 -- --ignored --exact`. Fixture/assertion scope: test builds `$synthetic-query` from `tests/fixtures/codex/synthetic`, runs live doctor/query plus installed-plugin rejection, compares digests, and sanitizes evidence.",
+      "expected_result": "Project-skill exits are 0; `knowledge_status` is `grounded`; citation count is at least 1 with count or `synthetic-page` retained; zero-citation or no_relevant_material output fails; digests match; installed-plugin config exits 2 with `ENTRYPOINT_INVALID` and zero provider starts; forbidden fields are absent.",
+      "id": "LIVE-009",
+      "phase": "live-provider",
+      "platform": "Windows x64 or Linux/WSL x64",
+      "requirement": "A differently named Codex project skill works by configuration only against synthetic content with grounded citations while a namespaced installed-plugin entrypoint fails closed."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test doctor live_010 -- --exact`. Fixture/assertion scope: sanitizer parses every LIVE-001 through LIVE-009 and LIVE-011 artifact and enforces the closed allowed-key/content schema.",
+      "expected_result": "Every artifact uses synthetic content; only citation count/validation status or approved synthetic fixture slugs are retained; real citation slugs/page names, answers, prompts, native payloads, account/session IDs, tokens, real wiki prose, and absolute protected paths are absent.",
+      "id": "LIVE-010",
+      "phase": "live-provider",
+      "platform": "Each executed live platform/provider",
+      "requirement": "Every live-provider evidence artifact uses an approved synthetic content root and a strict sanitized evidence schema."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test doctor live_011 -- --ignored --exact`. Fixture/assertion scope: test uses the provider-specific synthetic fixture, hashes probe bytes around failed/successful doctor, changes one tuple field, runs query, and sanitizes evidence.",
+      "expected_result": "Failed doctor leaves hash unchanged; successful doctor/query has `knowledge_status=grounded` and citation count at least 1 or approved `synthetic-page`; zero-citation/no_relevant_material fails and publishes no probe; success enables exact tuple; changed tuple exits 3 with `ENTRYPOINT_UNVERIFIED`; normal query makes no probe call; forbidden evidence is absent.",
+      "id": "LIVE-011",
+      "phase": "live-provider",
+      "platform": "Each executed live platform/provider",
+      "requirement": "Live doctor is never implicit, failed live verification preserves the probe, and successful grounded verification enables only the exact tuple using synthetic content."
+    },
+    {
+      "command_or_inspection": "Run `cargo test --test doctor live_012 -- --exact`. Fixture/assertion scope: test parses LIVE statuses, docs/Release support claims, and linked evidence through LIVE-010 sanitizer.",
+      "expected_result": "Every live claim maps to a PASS row; PENDING/FAIL rows are unclaimed; binary support is separate; published/linked evidence contains only LIVE-010-approved synthetic metadata.",
+      "id": "LIVE-012",
+      "phase": "live-provider",
+      "platform": "All support claims",
+      "requirement": "Documentation claims live support only for passed rows and exposes no unsanitized live evidence."
+    },
+    {
+      "command_or_inspection": "Closed procedure: (1) locate explicit user approval timestamp/scope in execution.md; (2) run `git remote -v`; (3) run `pwsh -NoProfile -Command \"$r=gh repo view --json nameWithOwner --jq .nameWithOwner; gh api ('repos/'+$r+'/actions/permissions')\"`; (4) inspect release workflow permissions for contents/id-token; (5) compare all timestamps with first workflow publication.",
+      "expected_result": "Approval predates workflow publication; one intended GitHub remote exists; Actions is enabled; workflow has effective Release and attestation permissions; otherwise row remains PENDING.",
+      "id": "REL-001",
+      "phase": "release",
+      "platform": "GitHub",
+      "requirement": "Release automation runs only in a user-approved Git repository with GitHub remote, Actions, and Release/attestation permissions."
+    },
+    {
+      "command_or_inspection": "Closed procedure: (1) inspect `.github/workflows/release.yml` tag trigger; (2) run `cargo metadata --no-deps --format-version 1`; (3) execute workflow tag-version check with `v0.1.0` and `v0.1.1` fixture inputs.",
+      "expected_result": "Trigger matches `v*`; `v0.1.0` comparison exits 0; mismatch fixture exits nonzero before any build job starts.",
+      "id": "REL-002",
+      "phase": "release",
+      "platform": "GitHub Actions",
+      "requirement": "A `v0.1.0` tag triggers release and tag version must equal Cargo package version before build."
+    },
+    {
+      "command_or_inspection": "Closed procedure: (1) inspect `release.yml` job needs graph; (2) inspect one tag run logs for `cargo fmt --check`, `cargo clippy --all-targets --all-features -- -D warnings`, helper build/export, and `cargo test --all-targets --all-features`; (3) trace every build/attest/publish `needs`.",
+      "expected_result": "All four gate stages exit 0; helper is configured; every native build, attestation, and publish job directly or transitively requires the tag quality gate.",
+      "id": "REL-003",
+      "phase": "release",
+      "platform": "GitHub Actions",
+      "requirement": "Tag path has an explicit prerequisite quality-gate job running format, Clippy with warnings denied, and the complete Rust tests with configured process helper."
+    },
+    {
+      "command_or_inspection": "Closed procedure: (1) run `rg -n -e \"windows-2025\" -e \"ubuntu-24.04\" -e \"macos-15\" -e \"uses:\" .github/workflows/ci.yml .github/workflows/release.yml`; (2) inspect action major pins; (3) inspect successful native job logs for Rust, process-helper, and installer commands.",
+      "expected_result": "Exactly the three required native runner classes execute; action references use reviewed pinned majors; each runner logs offline/process/installer commands with exit 0 and no skipped platform substitute.",
+      "id": "REL-004",
+      "phase": "release",
+      "platform": "GitHub Actions",
+      "requirement": "CI uses native Windows 2025, Ubuntu 24.04, and ARM64 macOS 15 jobs with reviewed pinned major action versions and runs offline, process, and installer tests."
+    },
+    {
+      "command_or_inspection": "Closed procedure: (1) run `rg -n -e \"x86_64-pc-windows-msvc\" -e \"x86_64-unknown-linux-musl\" -e \"aarch64-apple-darwin\" -e \"musl-tools\" -e \"llm-wikis-windows-amd64.exe\" -e \"llm-wikis-linux-amd64\" -e \"llm-wikis-darwin-arm64\" .github/workflows/release.yml`; (2) list staged artifacts.",
+      "expected_result": "Each target/name appears exactly in its native job; Ubuntu installs musl-tools; staged artifacts contain exactly three raw executables with no archive or unsupported binary.",
+      "id": "REL-005",
+      "phase": "release",
+      "platform": "GitHub Actions",
+      "requirement": "Release builds exactly the three documented targets and raw executable names, with musl-tools for Linux."
+    },
+    {
+      "command_or_inspection": "Closed procedure: (1) inspect each native job's step order and logs; (2) require rename before native `--version`; (3) require exact stdout comparison before upload; (4) inspect a forced wrong-version fixture run and its skipped upload.",
+      "expected_result": "All three smoke commands exit 0 with exact line before upload; forced mismatch fails and upload step is skipped.",
+      "id": "REL-006",
+      "phase": "release",
+      "platform": "Windows x64, Ubuntu x64, macOS Apple Silicon",
+      "requirement": "Each renamed native asset is smoke-tested on its native runner with exact `llm-wikis 0.1.0` output before upload."
+    },
+    {
+      "command_or_inspection": "Run `pwsh -NoProfile -File tests/release/verify-assets.ps1` on Windows and `sh tests/release/verify-assets.sh` on Linux/macOS against staged release files.",
+      "expected_result": "Both verifiers exit 0 only for exactly three correct checksum entries.",
+      "id": "REL-007",
+      "phase": "release",
+      "platform": "GitHub Actions",
+      "requirement": "SHA256SUMS contains exactly the three binaries, with no missing, duplicate, or unexpected entry; installer scripts remain raw repository files rather than Release assets."
+    },
+    {
+      "command_or_inspection": "Closed procedure: (1) inspect workflow permission block and attestation subjects; (2) run GitHub attestation verification for each of three executable digests and SHA256SUMS digest; (3) run `rg -n \"gh \" install.ps1 install.sh`.",
+      "expected_result": "Permissions are exactly contents read and id-token write for attestation job; four subjects verify against published digests; installers contain no gh invocation/prerequisite.",
+      "id": "REL-008",
+      "phase": "release",
+      "platform": "GitHub Actions",
+      "requirement": "Official GitHub artifact attestations cover all executables and the checksum manifest with `id-token: write` and `contents: read`; `gh` is not an installer prerequisite."
+    },
+    {
+      "command_or_inspection": "Closed procedure: (1) parse workflow needs graph; (2) require PASS evidence for NAT-001 through NAT-006, INST-001 through INST-014, REL-003, REL-006, and REL-007; (3) inspect tag-run conclusions; (4) list Release assets.",
+      "expected_result": "Publish job is unreachable until every prerequisite succeeds; successful release contains exactly three binaries and SHA256SUMS; any absent/failed prerequisite keeps release unpublished.",
+      "id": "REL-009",
+      "phase": "release",
+      "platform": "GitHub Release",
+      "requirement": "Publication occurs only after every Windows, Linux, and macOS native build, process, checksum, smoke, and installer row succeeds; no partial v0.1.0 asset set is published."
+    },
+    {
+      "command_or_inspection": "Closed procedure: (1) inspect the tag-triggered `release.yml` and require the triggering tag to exist without causing failure; (2) require early failure only when a GitHub Release for the tag or any target asset name already exists; (3) require no edit, delete, overwrite, clobber, or replace API/path; (4) compare published names/digests with the frozen pre-publication manifest and attestations; (5) record API-returned asset IDs in a separate post-publication record and join them to names/digests.",
+      "expected_result": "Triggering tag proceeds; pre-existing Release or target asset makes workflow fail before upload; workflow has no existing-release mutation path; pre-publication manifest contains exactly four names/digests and no IDs; published names/digests equal manifest/attestations; four returned asset IDs are recorded only after publication and map one-to-one to those names/digests.",
+      "id": "REL-010",
+      "phase": "release",
+      "platform": "GitHub Release",
+      "requirement": "Versioned Release publication is no-clobber and its four asset names/digests are bound to a durable pre-publication manifest and attestations, with returned asset IDs recorded separately."
+    },
+    {
+      "command_or_inspection": "Run `rg -n -e \"claude\" -e \"codex\" .github/workflows`; inspect matches and job dependencies.",
+      "expected_result": "Names appear only in comments asserting no invocation or not at all; no provider credential/call or LIVE job gates publish.",
+      "id": "REL-011",
+      "phase": "release",
+      "platform": "GitHub Actions",
+      "requirement": "CI and release workflows never invoke Claude or Codex and paid live-provider rows do not gate native binary publication."
+    },
+    {
+      "command_or_inspection": "Closed procedure: (1) run `rg -n -e \"Apple Silicon\" -e \"unsigned\" -e \"Gatekeeper\" -e \"SmartScreen\" -e \"checksum\" -e \"attestation\" docs/llm-wikis.md`; (2) inspect installer messages and Release notes; (3) scan for Gatekeeper/SmartScreen disable commands.",
+      "expected_result": "Docs/notes state Apple Silicon-only unsigned preview and possible SmartScreen warning; normal user approval is described; no security-disable command exists; checksum/attestation are explicitly not code signing.",
+      "id": "REL-012",
+      "phase": "release",
+      "platform": "Documentation and Release notes",
+      "requirement": "macOS is documented as Apple Silicon-only unsigned preview and Windows as unsigned with possible SmartScreen warning; guidance does not disable platform security."
+    },
+    {
+      "command_or_inspection": "Closed procedure: (1) run `rg -n -e \"notar\" -e \"Developer ID\" -e \"Authenticode\" -e \"Intel\" -e \"Linux ARM\" -e \"Homebrew\" -e \"WinGet\" -e \"Scoop\" -e \"self-update\" -e \"uninstall\" Cargo.toml src .github install.ps1 install.sh docs/llm-wikis.md`; (2) inspect every match and staged asset.",
+      "expected_result": "No implementation/manifest/signed/unsupported asset exists; every documentation match explicitly states exclusion or deferral.",
+      "id": "REL-013",
+      "phase": "release",
+      "platform": "Release artifacts and docs",
+      "requirement": "No Apple notarization, Developer ID, Windows Authenticode, Intel macOS, Linux ARM, package-manager manifest, built-in updater, or uninstaller is claimed in v0.1.0."
+    },
+    {
+      "command_or_inspection": "Closed procedure: (1) parse frozen commit or implementation SHA manifest; (2) parse all checklist statuses/evidence links; (3) require one existing artifact per PASS with command, exit, platform, timestamp, and sanitized output; (4) apply LIVE-010 to live artifacts; (5) compare verifier identity with OFF-001.",
+      "expected_result": "Freeze identity exists; every PASS has one complete artifact; live evidence is synthetic/sanitized; FAIL/PENDING are unchanged by prose; only the distinct Task 17 verifier edited status/evidence.",
+      "id": "REL-014",
+      "phase": "release",
+      "platform": "All",
+      "requirement": "Final independent verification freezes implementation identity and records one sanitized artifact per executed row; failed or unavailable rows are never converted to pass through prose."
+    },
+    {
+      "command_or_inspection": "Closed procedure: (1) parse checklist tables; (2) group IDs by phase; (3) require PASS for every offline, process, native-binary, installer, and release row except REL-015 itself; (4) list remaining PENDING/FAIL rows; (5) compare live pending rows with disclosed support claims.",
+      "expected_result": "Every required non-live prerequisite is PASS; no non-live FAIL/PENDING remains; any remaining PENDING is a disclosed live-provider/plugin row and has no support claim.",
+      "id": "REL-015",
+      "phase": "release",
+      "platform": "All",
+      "requirement": "Release readiness requires every non-live offline, process, native-binary, installer, and release row to pass; remaining pending rows may only be explicitly optional live-provider claims."
+    }
+  ],
+  "schema_version": 1
+}
