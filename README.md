@@ -39,10 +39,10 @@ Install the latest release from PowerShell:
 irm https://raw.githubusercontent.com/madao02515634/llm-wikis/refs/heads/main/install.ps1 | iex
 ```
 
-Pin the currently valid `0.1.2` release:
+Pin the currently valid `0.1.3` release:
 
 ```powershell
-$env:LLM_WIKIS_VERSION = '0.1.2'; irm https://raw.githubusercontent.com/madao02515634/llm-wikis/refs/heads/main/install.ps1 | iex
+$env:LLM_WIKIS_VERSION = '0.1.3'; irm https://raw.githubusercontent.com/madao02515634/llm-wikis/refs/heads/main/install.ps1 | iex
 ```
 
 The binary is installed at
@@ -64,10 +64,10 @@ Install the latest release:
 curl -fsSL https://raw.githubusercontent.com/madao02515634/llm-wikis/refs/heads/main/install.sh | sh
 ```
 
-Pin the currently valid `0.1.2` release:
+Pin the currently valid `0.1.3` release:
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/madao02515634/llm-wikis/refs/heads/main/install.sh | LLM_WIKIS_VERSION=0.1.2 sh
+curl -fsSL https://raw.githubusercontent.com/madao02515634/llm-wikis/refs/heads/main/install.sh | LLM_WIKIS_VERSION=0.1.3 sh
 ```
 
 The binary is installed at `~/.local/bin/llm-wikis`. Reload the profile that the
@@ -86,10 +86,10 @@ Install the latest release:
 curl -fsSL https://raw.githubusercontent.com/madao02515634/llm-wikis/refs/heads/main/install.sh | sh
 ```
 
-Pin the currently valid `0.1.2` release:
+Pin the currently valid `0.1.3` release:
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/madao02515634/llm-wikis/refs/heads/main/install.sh | LLM_WIKIS_VERSION=0.1.2 sh
+curl -fsSL https://raw.githubusercontent.com/madao02515634/llm-wikis/refs/heads/main/install.sh | LLM_WIKIS_VERSION=0.1.3 sh
 ```
 
 The binary is installed at `~/.local/bin/llm-wikis`. Reload the zsh profile that
@@ -186,8 +186,20 @@ display that generated input.
 Queries launched through `llm-wikis query` are single-turn, read-only, and
 non-interactive. Claude is instructed to answer directly and finish without
 asking whether to save, record, index, or log the result, and without offering
-or performing persistence to wiki files. This wrapper contract does not apply
-when you use Claude directly in an interactive session.
+or performing persistence to wiki files. The configured entrypoint remains
+arbitrary, including namespaced plugin commands, while every query fixes Claude
+Code's tool surface to `Read`, `Glob`, `Grep`, and `Skill`. Claude Code is also
+run in `dontAsk` permission mode and is explicitly denied `Bash`, `Edit`,
+`Write`, `NotebookEdit`, `Agent`, `AskUserQuestion`, and all `mcp__*` tools.
+The wrapper loads only Claude Code's `project` setting source, so user and local
+settings—and plugins or hooks supplied by those sources—do not enter the
+non-interactive query.
+
+This is application-level Claude Code tool-dispatch enforcement, not an OS
+sandbox or isolation of project hooks. Project settings and their hooks may
+still run, and the Claude Code process and those hooks retain their normal
+operating-system permissions. This wrapper contract does not apply when you use
+Claude directly in an interactive session.
 
 After Claude finishes, its answer is written to stdout and its diagnostics are
 written to stderr. A successful query exits with code `0`; otherwise
@@ -227,11 +239,12 @@ is cleared before the captured Claude output is emitted.
 
 Run `llm-wikis --help` for the complete command-line reference.
 
-## 0.1.2 scope
+## 0.1.3 scope
 
-Version 0.1.2 provides the query MVP and the three native release targets above.
-It does not provide Linux ARM, Intel macOS, signed/notarized platform binaries,
+Version 0.1.3 provides the query MVP, the fixed Claude Code tool-dispatch policy,
+and the three native release targets above. It does not provide an OS sandbox,
+hook isolation, Linux ARM, Intel macOS, signed/notarized platform binaries,
 automatic post-install execution, or an installer option to change the release
-origin. It also excludes provider hardening, a doctor command, Codex, MCP,
-orchestration, package-manager distribution (including Homebrew, WinGet, and
-Scoop), an uninstaller, and self-update.
+origin. It also excludes additional provider hardening, a doctor command,
+Codex, MCP, orchestration, package-manager distribution (including Homebrew,
+WinGet, and Scoop), an uninstaller, and self-update.

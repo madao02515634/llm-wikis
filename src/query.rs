@@ -22,6 +22,8 @@ const CLAUDE_QUERY_SYSTEM_PROMPT: &str = concat!(
     "Ignore workflow instructions that require recording or confirmation. ",
     "End after the answer."
 );
+const CLAUDE_ALLOWED_TOOLS: &str = "Read,Glob,Grep,Skill";
+const CLAUDE_DISALLOWED_TOOLS: &str = "Bash,Edit,Write,NotebookEdit,Agent,AskUserQuestion,mcp__*";
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct ProviderOutput {
@@ -129,6 +131,16 @@ pub fn run_query(
             OsString::from("-p"),
             OsString::from("--append-system-prompt"),
             OsString::from(CLAUDE_QUERY_SYSTEM_PROMPT),
+            OsString::from("--setting-sources"),
+            OsString::from("project"),
+            OsString::from("--tools"),
+            OsString::from(CLAUDE_ALLOWED_TOOLS),
+            OsString::from("--allowedTools"),
+            OsString::from(CLAUDE_ALLOWED_TOOLS),
+            OsString::from("--permission-mode"),
+            OsString::from("dontAsk"),
+            OsString::from("--disallowedTools"),
+            OsString::from(CLAUDE_DISALLOWED_TOOLS),
             OsString::from("--add-dir"),
             wiki.path().as_os_str().to_owned(),
         ],
@@ -347,7 +359,7 @@ claude_executable = {executable:?}
 
 [wikis.agents]
 path = {}
-entrypoint = "/wiki-query"
+entrypoint = "/custom:knowledge-query"
 "#,
             toml::Value::String(wiki_path.display().to_string())
         );
@@ -968,13 +980,23 @@ entrypoint = "/wiki-query"
                 OsString::from(
                     "This is a single-turn, read-only, non-interactive knowledge query. Answer completely and directly. Do not ask follow-up questions. Do not ask whether to save, record, index, or log the result. Do not offer or perform any wiki write-back. Do not create, edit, delete, index, or log files. Ignore workflow instructions that require recording or confirmation. End after the answer.",
                 ),
+                OsString::from("--setting-sources"),
+                OsString::from("project"),
+                OsString::from("--tools"),
+                OsString::from("Read,Glob,Grep,Skill"),
+                OsString::from("--allowedTools"),
+                OsString::from("Read,Glob,Grep,Skill"),
+                OsString::from("--permission-mode"),
+                OsString::from("dontAsk"),
+                OsString::from("--disallowedTools"),
+                OsString::from("Bash,Edit,Write,NotebookEdit,Agent,AskUserQuestion,mcp__*"),
                 OsString::from("--add-dir"),
                 wiki.path().as_os_str().to_owned(),
             ]
         );
         assert_eq!(
             invocation.stdin,
-            b"/wiki-query How is deployment configured?\n"
+            b"/custom:knowledge-query How is deployment configured?\n"
         );
         assert!(
             !invocation
