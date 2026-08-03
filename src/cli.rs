@@ -5,14 +5,16 @@ use thiserror::Error;
 
 use crate::{
     config::{Config, ConfigError, Environment, Platform, default_config_path},
-    query::{ProviderRunner, QueryError, run_query},
+    progress::QueryProgress,
+    query::{ProviderOutputSink, ProviderRunner, QueryError, run_query},
 };
 
 #[derive(Debug, Parser)]
 #[command(
     name = "llm-wikis",
     version,
-    about = "Query configured wikis through Claude Code"
+    about = "Query configured wikis through Claude Code",
+    after_long_help = "Examples:\n  llm-wikis query --wiki agents -- \"What is context engineering?\"\n  llm-wikis --config ./config.toml query --wiki agents -- \"How is deployment configured?\""
 )]
 pub struct Cli {
     #[arg(long, global = true, value_name = "PATH")]
@@ -25,6 +27,9 @@ pub struct Cli {
 #[derive(Debug, Subcommand)]
 pub enum Command {
     /// Query one configured wiki
+    #[command(
+        after_long_help = "Example:\n  llm-wikis query --wiki agents -- \"What is context engineering?\""
+    )]
     Query {
         /// Configured wiki ID
         #[arg(long)]
@@ -47,6 +52,8 @@ pub enum AppError {
 pub fn execute(
     cli: Cli,
     runner: &mut impl ProviderRunner,
+    progress: &mut impl QueryProgress,
+    output_sink: &mut impl ProviderOutputSink,
     platform: Platform,
     environment: &Environment,
 ) -> Result<i32, AppError> {
@@ -58,7 +65,8 @@ pub fn execute(
 
     match cli.command {
         Command::Query { wiki, question } => {
-            run_query(&config, &wiki, &question, runner).map_err(AppError::from)
+            run_query(&config, &wiki, &question, runner, progress, output_sink)
+                .map_err(AppError::from)
         }
     }
 }
@@ -71,11 +79,14 @@ mod tests {
         time::{SystemTime, UNIX_EPOCH},
     };
 
-    use clap::Parser;
+    use clap::{CommandFactory, Parser};
 
     use crate::{
         config::{Environment, Platform},
-        query::{ProviderInvocation, ProviderRunner, RunnerError},
+        progress::QueryProgress,
+        query::{
+            ProviderInvocation, ProviderOutput, ProviderOutputSink, ProviderRunner, RunnerError,
+        },
     };
 
     use super::{Cli, Command, execute};
@@ -86,9 +97,38 @@ mod tests {
     }
 
     impl ProviderRunner for FakeRunner {
-        fn run(&mut self, _invocation: ProviderInvocation) -> Result<i32, RunnerError> {
+        fn run(&mut self, _invocation: ProviderInvocation) -> Result<ProviderOutput, RunnerError> {
             self.invoked = true;
-            Ok(0)
+            Ok(ProviderOutput {
+                exit_code: 0,
+                stdout: Vec::new(),
+                stderr: Vec::new(),
+            })
+        }
+    }
+
+    #[derive(Default)]
+    struct FakeProgress {
+        invoked: bool,
+    }
+
+    impl QueryProgress for FakeProgress {
+        fn start(&mut self, _wiki: &str) {
+            self.invoked = true;
+        }
+
+        fn finish(&mut self) {}
+    }
+
+    #[derive(Default)]
+    struct FakeOutputSink {
+        invoked: bool,
+    }
+
+    impl ProviderOutputSink for FakeOutputSink {
+        fn replay(&mut self, _output: &ProviderOutput) -> Result<(), RunnerError> {
+            self.invoked = true;
+            Ok(())
         }
     }
 
@@ -101,6 +141,28 @@ mod tests {
             "llm-wikis-cli-test-{}-{nonce}.toml",
             std::process::id()
         ))
+    }
+
+    #[test]
+    fn root_help_contains_copyable_query_example() {
+        let help = Cli::command().render_long_help().to_string();
+
+        assert!(
+            help.contains(r#"llm-wikis query --wiki agents -- "What is context engineering?""#)
+        );
+    }
+
+    #[test]
+    fn query_help_contains_copyable_query_example() {
+        let mut command = Cli::command();
+        let query = command
+            .find_subcommand_mut("query")
+            .expect("query subcommand should exist");
+        let help = query.render_long_help().to_string();
+
+        assert!(
+            help.contains(r#"llm-wikis query --wiki agents -- "What is context engineering?""#)
+        );
     }
 
     #[test]
@@ -145,12 +207,23 @@ mod tests {
         ])
         .expect("CLI should parse");
         let mut runner = FakeRunner::default();
+        let mut progress = FakeProgress::default();
+        let mut output_sink = FakeOutputSink::default();
 
-        let error = execute(cli, &mut runner, Platform::Linux, &Environment::default())
-            .expect_err("invalid config should fail");
+        let error = execute(
+            cli,
+            &mut runner,
+            &mut progress,
+            &mut output_sink,
+            Platform::Linux,
+            &Environment::default(),
+        )
+        .expect_err("invalid config should fail");
 
         fs::remove_file(config_path).expect("fixture should be removed");
         assert!(error.to_string().contains("invalid config"));
         assert!(!runner.invoked);
+        assert!(!progress.invoked);
+        assert!(!output_sink.invoked);
     }
 }
