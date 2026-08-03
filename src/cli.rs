@@ -12,7 +12,8 @@ use crate::{
 #[command(
     name = "llm-wikis",
     version,
-    about = "Query configured wikis through Claude Code"
+    about = "Query configured wikis through Claude Code",
+    after_long_help = "Examples:\n  llm-wikis query --wiki agents -- \"What is context engineering?\"\n  llm-wikis --config ./config.toml query --wiki agents -- \"How is deployment configured?\""
 )]
 pub struct Cli {
     #[arg(long, global = true, value_name = "PATH")]
@@ -25,6 +26,9 @@ pub struct Cli {
 #[derive(Debug, Subcommand)]
 pub enum Command {
     /// Query one configured wiki
+    #[command(
+        after_long_help = "Example:\n  llm-wikis query --wiki agents -- \"What is context engineering?\""
+    )]
     Query {
         /// Configured wiki ID
         #[arg(long)]
@@ -71,7 +75,7 @@ mod tests {
         time::{SystemTime, UNIX_EPOCH},
     };
 
-    use clap::Parser;
+    use clap::{CommandFactory, Parser};
 
     use crate::{
         config::{Environment, Platform},
@@ -101,6 +105,28 @@ mod tests {
             "llm-wikis-cli-test-{}-{nonce}.toml",
             std::process::id()
         ))
+    }
+
+    #[test]
+    fn root_help_contains_copyable_query_example() {
+        let help = Cli::command().render_long_help().to_string();
+
+        assert!(
+            help.contains(r#"llm-wikis query --wiki agents -- "What is context engineering?""#)
+        );
+    }
+
+    #[test]
+    fn query_help_contains_copyable_query_example() {
+        let mut command = Cli::command();
+        let query = command
+            .find_subcommand_mut("query")
+            .expect("query subcommand should exist");
+        let help = query.render_long_help().to_string();
+
+        assert!(
+            help.contains(r#"llm-wikis query --wiki agents -- "What is context engineering?""#)
+        );
     }
 
     #[test]
