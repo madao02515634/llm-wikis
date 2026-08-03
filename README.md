@@ -39,10 +39,10 @@ Install the latest release from PowerShell:
 irm https://raw.githubusercontent.com/madao02515634/llm-wikis/refs/heads/main/install.ps1 | iex
 ```
 
-Pin the currently valid `0.1.1` release:
+Pin the currently valid `0.1.2` release:
 
 ```powershell
-$env:LLM_WIKIS_VERSION = '0.1.1'; irm https://raw.githubusercontent.com/madao02515634/llm-wikis/refs/heads/main/install.ps1 | iex
+$env:LLM_WIKIS_VERSION = '0.1.2'; irm https://raw.githubusercontent.com/madao02515634/llm-wikis/refs/heads/main/install.ps1 | iex
 ```
 
 The binary is installed at
@@ -64,10 +64,10 @@ Install the latest release:
 curl -fsSL https://raw.githubusercontent.com/madao02515634/llm-wikis/refs/heads/main/install.sh | sh
 ```
 
-Pin the currently valid `0.1.1` release:
+Pin the currently valid `0.1.2` release:
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/madao02515634/llm-wikis/refs/heads/main/install.sh | LLM_WIKIS_VERSION=0.1.1 sh
+curl -fsSL https://raw.githubusercontent.com/madao02515634/llm-wikis/refs/heads/main/install.sh | LLM_WIKIS_VERSION=0.1.2 sh
 ```
 
 The binary is installed at `~/.local/bin/llm-wikis`. Reload the profile that the
@@ -86,10 +86,10 @@ Install the latest release:
 curl -fsSL https://raw.githubusercontent.com/madao02515634/llm-wikis/refs/heads/main/install.sh | sh
 ```
 
-Pin the currently valid `0.1.1` release:
+Pin the currently valid `0.1.2` release:
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/madao02515634/llm-wikis/refs/heads/main/install.sh | LLM_WIKIS_VERSION=0.1.1 sh
+curl -fsSL https://raw.githubusercontent.com/madao02515634/llm-wikis/refs/heads/main/install.sh | LLM_WIKIS_VERSION=0.1.2 sh
 ```
 
 The binary is installed at `~/.local/bin/llm-wikis`. Reload the zsh profile that
@@ -183,6 +183,12 @@ question. One invocation accepts one `--wiki` ID and one prompt. `llm-wikis`
 sends the configured entrypoint and prompt to Claude through stdin; it does not
 display that generated input.
 
+Queries launched through `llm-wikis query` are single-turn, read-only, and
+non-interactive. Claude is instructed to answer directly and finish without
+asking whether to save, record, index, or log the result, and without offering
+or performing persistence to wiki files. This wrapper contract does not apply
+when you use Claude directly in an interactive session.
+
 After Claude finishes, its answer is written to stdout and its diagnostics are
 written to stderr. A successful query exits with code `0`; otherwise
 `llm-wikis` preserves Claude Code's exit code. Argument, configuration, or
@@ -221,9 +227,9 @@ is cleared before the captured Claude output is emitted.
 
 Run `llm-wikis --help` for the complete command-line reference.
 
-## 0.1.1 scope
+## 0.1.2 scope
 
-Version 0.1.1 provides the query MVP and the three native release targets above.
+Version 0.1.2 provides the query MVP and the three native release targets above.
 It does not provide Linux ARM, Intel macOS, signed/notarized platform binaries,
 automatic post-install execution, or an installer option to change the release
 origin. It also excludes provider hardening, a doctor command, Codex, MCP,

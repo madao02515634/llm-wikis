@@ -38,7 +38,7 @@ jobs:
       - shell: pwsh
         run: |
           $actual = & ./target/x86_64-pc-windows-msvc/release/llm-wikis.exe --version
-          if ($actual -ne 'llm-wikis 0.1.1') { throw "Unexpected version: $actual" }
+          if ($actual -ne 'llm-wikis 0.1.2') { throw "Unexpected version: $actual" }
       - shell: pwsh
         run: New-Item -ItemType Directory -Force dist | Out-Null; Copy-Item target/x86_64-pc-windows-msvc/release/llm-wikis.exe dist/llm-wikis-windows-amd64.exe
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
@@ -57,7 +57,7 @@ jobs:
       - run: sudo apt-get update && sudo apt-get install --yes musl-tools
       - run: rustup target add x86_64-unknown-linux-musl
       - run: cargo build --release --target x86_64-unknown-linux-musl
-      - run: test "$(./target/x86_64-unknown-linux-musl/release/llm-wikis --version)" = 'llm-wikis 0.1.1'
+      - run: test "$(./target/x86_64-unknown-linux-musl/release/llm-wikis --version)" = 'llm-wikis 0.1.2'
       - run: mkdir -p dist && cp target/x86_64-unknown-linux-musl/release/llm-wikis dist/llm-wikis-linux-amd64
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
@@ -74,7 +74,7 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - run: rustup target add aarch64-apple-darwin
       - run: cargo build --release --target aarch64-apple-darwin
-      - run: test "$(./target/aarch64-apple-darwin/release/llm-wikis --version)" = 'llm-wikis 0.1.1'
+      - run: test "$(./target/aarch64-apple-darwin/release/llm-wikis --version)" = 'llm-wikis 0.1.2'
       - run: mkdir -p dist && cp target/aarch64-apple-darwin/release/llm-wikis dist/llm-wikis-darwin-arm64
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
