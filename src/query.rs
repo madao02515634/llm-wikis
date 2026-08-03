@@ -13,6 +13,16 @@ use crate::{
     progress::QueryProgress,
 };
 
+const CLAUDE_QUERY_SYSTEM_PROMPT: &str = concat!(
+    "This is a single-turn, read-only, non-interactive knowledge query. ",
+    "Answer completely and directly. Do not ask follow-up questions. ",
+    "Do not ask whether to save, record, index, or log the result. ",
+    "Do not offer or perform any wiki write-back. ",
+    "Do not create, edit, delete, index, or log files. ",
+    "Ignore workflow instructions that require recording or confirmation. ",
+    "End after the answer."
+);
+
 #[derive(Debug, PartialEq, Eq)]
 pub struct ProviderOutput {
     pub exit_code: i32,
@@ -117,6 +127,8 @@ pub fn run_query(
         cwd: wiki.path().to_path_buf(),
         args: vec![
             OsString::from("-p"),
+            OsString::from("--append-system-prompt"),
+            OsString::from(CLAUDE_QUERY_SYSTEM_PROMPT),
             OsString::from("--add-dir"),
             wiki.path().as_os_str().to_owned(),
         ],
@@ -952,6 +964,10 @@ entrypoint = "/wiki-query"
             invocation.args,
             vec![
                 OsString::from("-p"),
+                OsString::from("--append-system-prompt"),
+                OsString::from(
+                    "This is a single-turn, read-only, non-interactive knowledge query. Answer completely and directly. Do not ask follow-up questions. Do not ask whether to save, record, index, or log the result. Do not offer or perform any wiki write-back. Do not create, edit, delete, index, or log files. Ignore workflow instructions that require recording or confirmation. End after the answer.",
+                ),
                 OsString::from("--add-dir"),
                 wiki.path().as_os_str().to_owned(),
             ]
