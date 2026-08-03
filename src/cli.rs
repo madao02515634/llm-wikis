@@ -5,7 +5,8 @@ use thiserror::Error;
 
 use crate::{
     config::{Config, ConfigError, Environment, Platform, default_config_path},
-    query::{ProviderRunner, QueryError, run_query},
+    progress::QueryProgress,
+    query::{ProviderOutputSink, ProviderRunner, QueryError, run_query},
 };
 
 #[derive(Debug, Parser)]
@@ -51,6 +52,8 @@ pub enum AppError {
 pub fn execute(
     cli: Cli,
     runner: &mut impl ProviderRunner,
+    progress: &mut impl QueryProgress,
+    output_sink: &mut impl ProviderOutputSink,
     platform: Platform,
     environment: &Environment,
 ) -> Result<i32, AppError> {
@@ -62,7 +65,8 @@ pub fn execute(
 
     match cli.command {
         Command::Query { wiki, question } => {
-            run_query(&config, &wiki, &question, runner).map_err(AppError::from)
+            run_query(&config, &wiki, &question, runner, progress, output_sink)
+                .map_err(AppError::from)
         }
     }
 }
@@ -79,7 +83,10 @@ mod tests {
 
     use crate::{
         config::{Environment, Platform},
-        query::{ProviderInvocation, ProviderRunner, RunnerError},
+        progress::QueryProgress,
+        query::{
+            ProviderInvocation, ProviderOutput, ProviderOutputSink, ProviderRunner, RunnerError,
+        },
     };
 
     use super::{Cli, Command, execute};
@@ -90,9 +97,38 @@ mod tests {
     }
 
     impl ProviderRunner for FakeRunner {
-        fn run(&mut self, _invocation: ProviderInvocation) -> Result<i32, RunnerError> {
+        fn run(&mut self, _invocation: ProviderInvocation) -> Result<ProviderOutput, RunnerError> {
             self.invoked = true;
-            Ok(0)
+            Ok(ProviderOutput {
+                exit_code: 0,
+                stdout: Vec::new(),
+                stderr: Vec::new(),
+            })
+        }
+    }
+
+    #[derive(Default)]
+    struct FakeProgress {
+        invoked: bool,
+    }
+
+    impl QueryProgress for FakeProgress {
+        fn start(&mut self, _wiki: &str) {
+            self.invoked = true;
+        }
+
+        fn finish(&mut self) {}
+    }
+
+    #[derive(Default)]
+    struct FakeOutputSink {
+        invoked: bool,
+    }
+
+    impl ProviderOutputSink for FakeOutputSink {
+        fn replay(&mut self, _output: &ProviderOutput) -> Result<(), RunnerError> {
+            self.invoked = true;
+            Ok(())
         }
     }
 
@@ -171,12 +207,23 @@ mod tests {
         ])
         .expect("CLI should parse");
         let mut runner = FakeRunner::default();
+        let mut progress = FakeProgress::default();
+        let mut output_sink = FakeOutputSink::default();
 
-        let error = execute(cli, &mut runner, Platform::Linux, &Environment::default())
-            .expect_err("invalid config should fail");
+        let error = execute(
+            cli,
+            &mut runner,
+            &mut progress,
+            &mut output_sink,
+            Platform::Linux,
+            &Environment::default(),
+        )
+        .expect_err("invalid config should fail");
 
         fs::remove_file(config_path).expect("fixture should be removed");
         assert!(error.to_string().contains("invalid config"));
         assert!(!runner.invoked);
+        assert!(!progress.invoked);
+        assert!(!output_sink.invoked);
     }
 }
